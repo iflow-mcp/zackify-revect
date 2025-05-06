@@ -1,0 +1,19 @@
+{
+  "name": "revect",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run --watch src/server.ts "
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "openai": "^4.97.0",
+    "zod": "^3.24.4"
+  }
+}
