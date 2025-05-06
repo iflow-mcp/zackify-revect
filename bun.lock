@@ -4,6 +4,7 @@
     "": {
       "name": "revect",
       "dependencies": {
+        "@duckdb/node-api": "^1.2.2-alpha.18",
         "openai": "^4.97.0",
         "zod": "^3.24.4",
       },
@@ -16,6 +17,20 @@
     },
   },
   "packages": {
+    "@duckdb/node-api": ["@duckdb/node-api@1.2.2-alpha.18", "", { "dependencies": { "@duckdb/node-bindings": "1.2.2-alpha.18" } }, "sha512-9ke/DF7ZZzj6pzlswF34DDytYUn8fhAe4JdZGEvXpNJxnccf1l1Aisqg0fUtOxZkYrO4ALgSZHR0i3i4RLndUQ=="],
+
+    "@duckdb/node-bindings": ["@duckdb/node-bindings@1.2.2-alpha.18", "", { "optionalDependencies": { "@duckdb/node-bindings-darwin-arm64": "1.2.2-alpha.18", "@duckdb/node-bindings-darwin-x64": "1.2.2-alpha.18", "@duckdb/node-bindings-linux-arm64": "1.2.2-alpha.18", "@duckdb/node-bindings-linux-x64": "1.2.2-alpha.18", "@duckdb/node-bindings-win32-x64": "1.2.2-alpha.18" } }, "sha512-1O/yBDevwMNGlv559sn3myOds0lM0D4e8ilHsDzOs3rDnpzEdzK6aSTPVG8APjjFjPjk+pEzBxUse7UsP6objA=="],
+
+    "@duckdb/node-bindings-darwin-arm64": ["@duckdb/node-bindings-darwin-arm64@1.2.2-alpha.18", "", { "os": "darwin", "cpu": "arm64" }, "sha512-xNzfi/+swRiA1Rye25f33tKXmFYbyQcslN6bpB3nR/Wkiotjlu3dAc5wvTpUDiiJwNeZRTRdJM/OXtUO0YaAfw=="],
+
+    "@duckdb/node-bindings-darwin-x64": ["@duckdb/node-bindings-darwin-x64@1.2.2-alpha.18", "", { "os": "darwin", "cpu": "x64" }, "sha512-9vXgAJ2LFKRa53E7RmvGdhWtisLLPKIpSzeE/L3X4aD5zv1V4YnhYHuMOTgxZguj+eOT1pvG99geH1WQb3DdNQ=="],
+
+    "@duckdb/node-bindings-linux-arm64": ["@duckdb/node-bindings-linux-arm64@1.2.2-alpha.18", "", { "os": "linux", "cpu": "arm64" }, "sha512-WcgfkPDGRsMcKAVzDhL14BJB1lYD9YY7wEIoPdyXYwkK+c4WT7ublsx7diFqBk/jO0jFYTRmXIqpNyqGT0Lwjg=="],
+
+    "@duckdb/node-bindings-linux-x64": ["@duckdb/node-bindings-linux-x64@1.2.2-alpha.18", "", { "os": "linux", "cpu": "x64" }, "sha512-dPqVJwpu9SmKxuw7ZfebUzOLBMrZz24UzFXuHX0uwSXZS1ndUuHnqk7SWGcWafNJeDlMKV//uMQke+MGXt2LmQ=="],
+
+    "@duckdb/node-bindings-win32-x64": ["@duckdb/node-bindings-win32-x64@1.2.2-alpha.18", "", { "os": "win32", "cpu": "x64" }, "sha512-0BSRNH3JbvHDYd2LM/25uQlSaXzeJaJvBCJQZoIXttY5vq6stLknfQ9zWADLa8jwFYU+p87Ajqg415zs4SfMFQ=="],
+
     "@types/bun": ["@types/bun@1.2.12", "", { "dependencies": { "bun-types": "1.2.12" } }, "sha512-lY/GQTXDGsolT/TiH72p1tuyUORuRrdV7VwOTOjDOt8uTBJQOJc5zz3ufwwDl0VBaoxotSk4LdP0hhjLJ6ypIQ=="],
 
     "@types/node": ["@types/node@18.19.97", "", { "dependencies": { "undici-types": "~5.26.4" } }, "sha512-4r3Y9EuCJjWduiam85Fo4GBQtneaEuoaBSdiKo+o6qwQUh0JFVBe7cRUK6I6yVzA0S1gBJJfoQx4VtBH4e5ikg=="],
