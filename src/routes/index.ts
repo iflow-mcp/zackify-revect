@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generate } from "../embed-generation/openai";
+import { generate } from "../embed-generation/generate";
 
 const schema = z.object({
   text: z.string({ required_error: "Text field is required" }),
@@ -30,7 +30,11 @@ export const indexRoute = async (request: Request) => {
     }
   }
 
-  const embeddings = await generate(data.text);
+  //todo later get this from the user table or force ollama if running locally
+  const embeddings = await generate(data.text, {
+    apiKey: process.env.AI_API_KEY as string,
+    baseURL: process.env.AI_BASE_URL,
+  });
 
   return Response.json({
     message: "Data received and validated",
