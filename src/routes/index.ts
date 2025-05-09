@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
+import { indexToDb } from "../shared/indexToDb";
+import { initializeCurrentMonthDb } from "../shared/initializeCurrentMonthDB";
 
 const schema = z.object({
+  external_id: z.string().optional(),
   text: z.string({ required_error: "Text field is required" }),
   metadata: z.record(z.any()).optional(),
 });
@@ -35,6 +38,15 @@ export const indexRoute = async (request: Request) => {
     apiKey: process.env.AI_API_KEY as string,
     baseURL: process.env.AI_BASE_URL,
   });
+
+  if (!embeddings) {
+    return Response.json(
+      { error: "Failed to generate embeddings" },
+      { status: 500 }
+    );
+  }
+
+  await indexToDb({ ...data, embeddings });
 
   return Response.json({
     message: "Data received and validated",
