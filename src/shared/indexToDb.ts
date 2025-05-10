@@ -17,21 +17,22 @@ export const indexToDb = async (data: Props) => {
   const count = (await result.getRows())?.[0];
   if (!count) return;
   try {
-    await db.run(
+    const result = await db.run(
       `INSERT INTO documents (id, external_id, text, metadata, embeddings, embeddings_model) VALUES ($id, $external_id, $text, $metadata, $embeddings, $embeddings_model)`,
       {
         id: parseInt(count as unknown as string) + 1,
         external_id: data.external_id || null,
         text: data.text,
-        metadata: JSON.stringify(data.metadata),
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
         embeddings: arrayValue(data.embeddings),
         embeddings_model: process.env.AI_EMBEDDING_MODEL as string,
       }
     );
+    console.log(`Inserted ${result.rowsChanged} document ${data.external_id}`);
   } catch (e) {
     if (e instanceof Error) {
       if (e.message.includes("violates unique constraint")) {
-        console.log("Document already exists");
+        console.log(`Document already exists for ${data.external_id}`);
       } else {
         console.error(e);
       }

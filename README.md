@@ -1,15 +1,5 @@
-# revect
+# next:
 
-To install dependencies:
+make /search route that does full text search and support semantic search
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.9. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+make docker file for this and have 1 command to run it and start indexing everything

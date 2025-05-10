@@ -7,7 +7,7 @@
     "@types/bun": "latest"
   },
   "scripts": {
-    "start": "bun build --watch ./src/background.ts --outdir ./dist"
+    "start": "bun build --watch ./src/background.ts ./src/content.ts --outdir ./dist"
   },
   "peerDependencies": {
     "typescript": "^5"
