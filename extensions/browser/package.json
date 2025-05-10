@@ -1,0 +1,19 @@
+{
+  "name": "browser",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "start": "bun build --watch ./src/background.ts --outdir ./dist"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@mlc-ai/web-llm": "^0.2.79",
+    "@types/chrome": "^0.0.321"
+  }
+}

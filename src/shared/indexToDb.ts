@@ -12,8 +12,8 @@ export const indexToDb = async (data: Props) => {
   const { db } = await initializeCurrentMonthDb();
 
   const result = await db.run(`SELECT COUNT(*) FROM documents`);
-  const result2 = await db.run(`SELECT * FROM documents`);
-  console.log(await result2.rowCount);
+  // const result2 = await db.run(`SELECT * FROM documents`);
+  // console.log(await result2.rowCount);
   const count = (await result.getRows())?.[0];
   if (!count) return;
   try {

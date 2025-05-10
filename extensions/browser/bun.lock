@@ -1,0 +1,41 @@
+{
+  "lockfileVersion": 1,
+  "workspaces": {
+    "": {
+      "name": "browser",
+      "dependencies": {
+        "@mlc-ai/web-llm": "^0.2.79",
+        "@types/chrome": "^0.0.321",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
+  },
+  "packages": {
+    "@mlc-ai/web-llm": ["@mlc-ai/web-llm@0.2.79", "", { "dependencies": { "loglevel": "^1.9.1" } }, "sha512-Hy1ZHQ0o2bZGZoVnGK48+fts/ZSKwLe96xjvqL/6C59Mem9HoHTcFE07NC2E23mRmhd01tL655N6CPeYmwWgwQ=="],
+
+    "@types/bun": ["@types/bun@1.2.12", "", { "dependencies": { "bun-types": "1.2.12" } }, "sha512-lY/GQTXDGsolT/TiH72p1tuyUORuRrdV7VwOTOjDOt8uTBJQOJc5zz3ufwwDl0VBaoxotSk4LdP0hhjLJ6ypIQ=="],
+
+    "@types/chrome": ["@types/chrome@0.0.321", "", { "dependencies": { "@types/filesystem": "*", "@types/har-format": "*" } }, "sha512-SJhZSr5Xcj0rHXSKm/UTp4iIFtlxMADpa45UVCgWPemz/MdJA7ej0gvqUb+wqAX5COpA1FgPKPEoEw2L8SDVGQ=="],
+
+    "@types/filesystem": ["@types/filesystem@0.0.36", "", { "dependencies": { "@types/filewriter": "*" } }, "sha512-vPDXOZuannb9FZdxgHnqSwAG/jvdGM8Wq+6N4D/d80z+D4HWH+bItqsZaVRQykAn6WEVeEkLm2oQigyHtgb0RA=="],
+
+    "@types/filewriter": ["@types/filewriter@0.0.33", "", {}, "sha512-xFU8ZXTw4gd358lb2jw25nxY9QAgqn2+bKKjKOYfNCzN4DKCFetK7sPtrlpg66Ywe3vWY9FNxprZawAh9wfJ3g=="],
+
+    "@types/har-format": ["@types/har-format@1.2.16", "", {}, "sha512-fluxdy7ryD3MV6h8pTfTYpy/xQzCFC7m89nOH9y94cNqJ1mDIDPut7MnRHI3F6qRmh/cT2fUjG1MLdCNb4hE9A=="],
+
+    "@types/node": ["@types/node@22.15.17", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-wIX2aSZL5FE+MR0JlvF87BNVrtFWf6AE6rxSE9X7OwnVvoyCQjpzSRJ+M87se/4QCkCiebQAqrJ0y6fwIyi7nw=="],
+
+    "bun-types": ["bun-types@1.2.12", "", { "dependencies": { "@types/node": "*" } }, "sha512-tvWMx5vPqbRXgE8WUZI94iS1xAYs8bkqESR9cxBB1Wi+urvfTrF1uzuDgBHFAdO0+d2lmsbG3HmeKMvUyj6pWA=="],
+
+    "loglevel": ["loglevel@1.9.2", "", {}, "sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg=="],
+
+    "typescript": ["typescript@5.8.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ=="],
+
+    "undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
+  }
+}
