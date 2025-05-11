@@ -21,4 +21,13 @@ export const loadCurrentMonth = async () => {
     SELECT * FROM db202505.documents
   `);
   console.log(result.toArray().map((row) => row.toJSON()));
+
+  const test = await c.query(`
+    LOAD vss;
+    CREATE TABLE embeddings (vec FLOAT[3]);
+
+-- Create an HNSW index on the column
+CREATE INDEX idx ON embeddings USING HNSW (vec);
+`);
+  console.log(test, "yo");
 };
