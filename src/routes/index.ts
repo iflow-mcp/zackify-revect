@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { indexToDb } from "../shared/indexToDb";
-import { initializeCurrentMonthDb } from "../shared/initializeCurrentMonthDB";
 
 const schema = z.object({
   external_id: z.string().optional(),
