@@ -1,0 +1,19 @@
+{
+  "name": "obsidian",
+  "private": true,
+  "scripts": {
+    "dev": "bun build --watch ./src/main.ts --outfile main.js --external obsidian --format cjs",
+    "build": "bun build ./srcmain.ts --outfile main.js --external obsidian --format cjs"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "obsidian": "^1.8.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "revect",
+  "name": "revect.io",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Index and semantically search all of your notes",
+  "author": "Zach Silveira",
+  "authorUrl": "https://revect.io",
+  "fundingUrl": "https://revect.io/pricing",
+  "isDesktopOnly": false
+}
