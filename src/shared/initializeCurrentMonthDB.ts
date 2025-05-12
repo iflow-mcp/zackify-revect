@@ -9,7 +9,7 @@ export const initializeCurrentMonthDb = async () => {
   const currentMonth = new Date().getMonth();
 
   if (cachedMonth === currentMonth && cachedDb) {
-    console.log("Using cached DB connection for month:", currentMonth);
+    //console.log("Using cached DB connection for month:", currentMonth);
     return { db: cachedDb };
   }
 
@@ -19,6 +19,7 @@ export const initializeCurrentMonthDb = async () => {
 
   cachedDb?.closeSync();
   const { dbPath } = await currentMonthDb();
+
   const newInstance = await DuckDBInstance.create(dbPath); // Create a new instance
   const newDb = await newInstance.connect(); // Create a new connection
 
@@ -28,6 +29,7 @@ export const initializeCurrentMonthDb = async () => {
 
   // Run setup query on the new connection
   await cachedDb.run(`
+    LOAD vss;
     CREATE TABLE IF NOT EXISTS documents (
       id INTEGER PRIMARY KEY,
       external_id VARCHAR UNIQUE,

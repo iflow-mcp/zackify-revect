@@ -1,4 +1,6 @@
-type Props = {
+import { debounce } from "obsidian";
+
+export type Props = {
   apiUrl: string;
   text: string;
   external_id: string;
@@ -17,6 +19,7 @@ export const indexToApi = async ({ apiUrl, text, external_id }: Props) => {
       "Content-Type": "application/json",
     },
   });
-
-  console.log(await res.json());
+  const json = await res.json();
+  console.log(json);
+  return json;
 };

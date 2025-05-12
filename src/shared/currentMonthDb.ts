@@ -1,3 +1,5 @@
+import { existsSync } from "fs";
+import { mkdir } from "fs/promises";
 import { join } from "path";
 
 /**
@@ -12,6 +14,9 @@ export async function currentMonthDb() {
 
   const yearPath = join("./data", year);
   const dbPath = join(yearPath, fileName);
+
+  //duckdb will only make if the parent folder exists
+  if (!(await existsSync(yearPath))) await mkdir(yearPath);
 
   return { dbPath };
 }

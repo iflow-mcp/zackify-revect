@@ -2,7 +2,7 @@
   "name": "obsidian",
   "private": true,
   "scripts": {
-    "dev": "bun build --watch ./src/main.ts --outfile main.js --external obsidian --format cjs",
+    "start": "bun build --watch ./src/main.ts --outfile main.js --external obsidian --format cjs",
     "build": "bun build ./srcmain.ts --outfile main.js --external obsidian --format cjs"
   },
   "devDependencies": {

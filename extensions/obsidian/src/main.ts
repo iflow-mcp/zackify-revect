@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { debounce, Plugin, setIcon } from "obsidian";
 import {
   DEFAULT_SETTINGS,
   SettingsTab,
@@ -6,8 +6,31 @@ import {
 } from "./SettingsTab";
 import { StatusBarModal } from "./StatusBarModal";
 import { indexToApi } from "./indexToApi";
+import type { Props } from "./indexToApi";
 
-const revectStatusView = "revect-status-view";
+const debouncedIndexToApi = debounce(
+  async (props: Props, icon: HTMLElement) => {
+    setIcon(icon, "loader");
+    icon.setCssStyles({
+      animation: "spin 2s linear infinite",
+    });
+
+    try {
+      await indexToApi(props);
+      setIcon(icon, "circle-check");
+      setTimeout(() => icon.setText(""), 2000);
+    } catch (e) {
+      //TODO persist to show in modal
+      console.error(e);
+      setIcon(icon, "mail-warning");
+    }
+    icon.setCssStyles({
+      animation: null,
+    });
+  },
+  5000
+);
+
 export default class RevectPlugin extends Plugin {
   //@ts-ignore
   settings: RevectSettings;
@@ -16,27 +39,32 @@ export default class RevectPlugin extends Plugin {
     await this.loadSettings();
 
     // --- Setup Status Bar Item ---
-    const statusBarItemEl = this.addStatusBarItem();
-    statusBarItemEl.setText("revect.io"); // Keep or change icon
+    const status = this.addStatusBarItem();
+    const statusText = status.createSpan(); // Create a span for the icon
+    const icon = status.createSpan(); // Create a span for the icon
+
+    statusText.setCssStyles({ marginRight: "2px" });
+    statusText.setText("revect.io"); // Append text next to the icon (note the leading space)
+
     // Update the click event to open the modal
-    statusBarItemEl.onClickEvent(() => {
+    status.onClickEvent(() => {
       new StatusBarModal(this.app, this.settings).open();
     });
 
-    // This adds an editor command that can perform some operation on the current editor instance
-    this.addCommand({
-      id: "revect-index-page",
-      name: "Index current page",
-      editorCallback: async (editor, view) => {
-        const text = editor.getValue();
+    // embed on change
+    this.app.workspace.on("editor-change", async (editor, view) => {
+      const text = editor.getValue();
 
-        if (!view.file) return;
-        await indexToApi({
+      if (!view.file) return;
+
+      await debouncedIndexToApi(
+        {
           apiUrl: this.settings.apiUrl,
           text,
           external_id: view.file?.path,
-        });
-      },
+        },
+        icon
+      );
     });
 
     // This adds a settings tab so the user can configure various aspects of the plugin

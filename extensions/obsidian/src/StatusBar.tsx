@@ -24,7 +24,6 @@ export const StatusBar = ({
           setTotal(allFiles.length);
           try {
             for (const [index, file] of Object.entries(allFiles)) {
-              console.log(index, "yo");
               setProgress(parseInt(index) + 1);
               const text = await vault.read(file);
 
