@@ -8,28 +8,34 @@ spec:
   template:
     metadata:
       annotations:
-        autoscaling.knative.dev/maxScale: "1"
-        run.googleapis.com/cpu-throttling: "false"
-        run.googleapis.com/startup-cpu-boost: "true"
-        run.googleapis.com/container-dependencies: '{"revect":["ollama-sidecar"]}'
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "100"
+        autoscaling.knative.dev/initialScale: "0"
+
     spec:
       containerConcurrency: 80
       timeoutSeconds: 300
       containers:
         - name: revect
-          image: docker.io/zachrebuild/revect.io:latest
+          image: docker.io/zachrebuild/revect.io:5
           ports:
             - name: http1
               containerPort: 3000
           env:
-            - name: AI_BASE_URL
-              value: http://localhost:11434
-            - name: AI_API_KEY
-              value: "ollama"
             - name: AI_EMBEDDING_MODEL
-              value: "mxbai-embed-large"
+              value: "text-embedding-3-small"
             - name: AI_EMBEDDING_SIZE
               value: "1024"
+            - name: AI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: openaikey
+            - name: API_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: apisecret
           resources:
             limits:
               memory: 1Gi
@@ -39,19 +45,4 @@ spec:
             periodSeconds: 240
             failureThreshold: 1
             tcpSocket:
-              port: 8080
-        - name: ollama-sidecar
-          image: docker.io/zachrebuild/revect-ollama:latest
-          resources:
-            limits:
-              cpu: "6"
-              nvidia.com/gpu: "1"
-              memory: 16Gi
-          startupProbe:
-            timeoutSeconds: 1
-            periodSeconds: 10
-            failureThreshold: 3
-            tcpSocket:
-              port: 11434
-      nodeSelector:
-        run.googleapis.com/accelerator: nvidia-l4
+              port: 3000

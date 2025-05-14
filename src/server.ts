@@ -1,10 +1,18 @@
-import { serve } from "bun";
+import { serve, type BunRequest } from "bun";
 import { indexRoute } from "./routes";
 import App from "./frontend/public/app.html";
 
+const checkForApiKey =
+  (fn: (request: BunRequest) => Promise<Response>) => (request: BunRequest) => {
+    if (request.headers.get("Authorization") !== process.env.API_SECRET) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return fn(request);
+  };
+
 serve({
   routes: {
-    "/index": (request) => indexRoute(request),
+    "/index": checkForApiKey(indexRoute),
     "/app/*": App,
     "/app": App,
     "/db/:year/:month": (request) => {

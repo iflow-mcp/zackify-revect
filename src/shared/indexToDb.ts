@@ -1,5 +1,5 @@
 import { arrayValue, DuckDBConnection, DuckDBInstance } from "@duckdb/node-api"; // Revert to namespace import
-import { initializeCurrentMonthDb } from "./initializeCurrentMonthDB";
+import { initializeDb } from "./initializeDb";
 
 type Props = {
   external_id?: string;
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const indexToDb = async (data: Props) => {
-  const { db } = await initializeCurrentMonthDb();
+  const { db } = await initializeDb();
 
   const result = await db.run(`SELECT COUNT(*) FROM documents`);
   // const result2 = await db.run(`SELECT * FROM documents`);
