@@ -23,3 +23,4 @@ serve({
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   },
 });
+console.log("revect.io now running");
