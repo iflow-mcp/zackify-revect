@@ -21,3 +21,7 @@ gcloud run services replace service.yml
 next:
 
 store in GCS for the db and then the private version should sort of be close to running all the way??
+
+#next:
+
+have to provide a way to re-embed all existing tables, with re-embed endpoint, and power the embed active model based off db metadata table that needs to store that info as to waht embedding model is used inside the entire thing
