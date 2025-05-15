@@ -1,3 +1,8 @@
+# todo!!!
+
+- make locking check because many requests can come in and we need to lock and wait and release
+- we only need this so its ready for cloud hosting, otherwise we could just open and keep open the connection
+
 # next:
 
 make /search route that does full text search and support semantic search
