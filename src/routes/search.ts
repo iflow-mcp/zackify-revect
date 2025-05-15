@@ -3,7 +3,6 @@ import { generate } from "../embed-generation/generate";
 import { corsHeaders as headers } from "../shared/corsHeaders";
 import { database } from "../shared/database";
 import { arrayValue } from "@duckdb/node-api";
-import { searchDocumentsQuery } from "../shared/searchDocumentsQuery";
 
 const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
@@ -43,7 +42,14 @@ export const search = async (request: Request) => {
 
   const db = await database();
 
-  const search = await db.prepare(searchDocumentsQuery);
+  const search = await db.prepare(`
+    SELECT id, text, metadata
+    FROM documents
+    ORDER BY array_cosine_distance(
+      embeddings,
+      ?::FLOAT[1024])
+    LIMIT 10;
+  `);
   search.bind({ embeddings: arrayValue(embeddings) });
 
   const result = await search.run();
