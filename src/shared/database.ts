@@ -1,6 +1,6 @@
 import { DuckDBInstance } from "@duckdb/node-api";
 
-export const dbConnection = async () => {
+export const database = async () => {
   const newInstance = await DuckDBInstance.create("data.duckdb"); // Create a new instance
   const db = await newInstance.connect(); // Create a new connection
 
@@ -19,5 +19,5 @@ export const dbConnection = async () => {
     )
   `);
 
-  return { db };
+  return db;
 };

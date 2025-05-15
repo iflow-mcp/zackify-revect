@@ -1,10 +1,9 @@
 import { createRoot } from "react-dom/client";
-import "./shared/db";
 import { useEffect } from "react";
-import { loadCurrentMonth } from "./shared/loadCurrentMonth";
+import { database } from "./wasm-old/database";
 const App = () => {
   useEffect(() => {
-    const db = loadCurrentMonth();
+    const db = database();
   }, []);
   return (
     <div>

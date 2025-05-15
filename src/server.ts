@@ -3,37 +3,23 @@ import { indexRoute } from "./routes";
 import App from "./frontend/public/app.html";
 import { corsHeaders } from "./shared/corsHeaders";
 import { search } from "./routes/search";
-
-const checkForApiKey =
-  (fn: (request: BunRequest) => Promise<Response>) => (request: BunRequest) => {
-    if (request.method === "OPTIONS")
-      return new Response(null, { headers: corsHeaders });
-
-    if (request.headers.get("Authorization") !== process.env.API_SECRET) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return fn(request);
-  };
+import { dbRoute, dbWalRoute } from "./routes/db";
+import { checkForApiKey } from "./shared/checkForApiKey";
 
 serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(search),
+    //grab db for frontend
+    "/db": checkForApiKey(dbRoute),
+    "/db.wal": checkForApiKey(dbWalRoute),
+    //frontend
     "/app/*": App,
     "/app": App,
-    "/db/:year/:month": (request) => {
-      return new Response(
-        Bun.file(`./data/${request.params.year}/${request.params.month}.db`)
-      );
-    },
-    "/db/:year/:month/wal": (request) => {
-      return new Response(
-        Bun.file(`./data/${request.params.year}/${request.params.month}.db.wal`)
-      );
-    },
   },
   error(error) {
     console.error("Error processing request:", error);
+
     if (error.message.includes("Unexpected end of JSON input"))
       return Response.json(
         { error: "Must post data to this endpoint" },

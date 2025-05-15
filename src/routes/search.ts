@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { corsHeaders as headers } from "../shared/corsHeaders";
-import { dbConnection } from "../shared/dbConnection";
+import { database } from "../shared/database";
 import { arrayValue } from "@duckdb/node-api";
+import { searchDocumentsQuery } from "../shared/searchDocumentsQuery";
 
 const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
@@ -40,18 +41,11 @@ export const search = async (request: Request) => {
     );
   }
 
-  const { db } = await dbConnection();
+  const db = await database();
 
-  const search = await db.prepare(`
-    SELECT id, text, metadata
-    FROM documents
-    ORDER BY array_cosine_distance(
-      embeddings,
-      $embeddings::FLOAT[1024])
-    LIMIT 10;
-  `);
-
+  const search = await db.prepare(searchDocumentsQuery);
   search.bind({ embeddings: arrayValue(embeddings) });
+
   const result = await search.run();
   const rows = await result.getRows();
 
