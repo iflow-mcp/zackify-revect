@@ -1,7 +1,7 @@
-import { arrayValue, DuckDBConnection, DuckDBInstance } from "@duckdb/node-api"; // Revert to namespace import
-import { initializeDb } from "./initializeDb";
+import { arrayValue, DuckDBConnection } from "@duckdb/node-api"; // Revert to namespace import
 
 type Props = {
+  db: DuckDBConnection;
   external_id?: string;
   text: string;
   embeddings: number[];
@@ -9,9 +9,7 @@ type Props = {
 };
 
 export const indexToDb = async (data: Props) => {
-  const { db } = await initializeDb();
-
-  const result = await db.run(`SELECT COUNT(*) FROM documents`);
+  const result = await data.db.run(`SELECT COUNT(*) FROM documents`);
   // const result2 = await db.run(`SELECT * FROM documents`);
   // console.log(await result2.rowCount);
   const count = (await result.getRows())?.[0];
@@ -20,14 +18,14 @@ export const indexToDb = async (data: Props) => {
   try {
     // Check if document with this external_id already exists
     if (data.external_id) {
-      const existingDoc = await db.run(
+      const existingDoc = await data.db.run(
         `SELECT id FROM documents WHERE external_id = $external_id`,
         { external_id: data.external_id }
       );
       const rows = await existingDoc.getRows();
       if (rows && rows.length > 0) {
         // Update existing document
-        await db.run(
+        await data.db.run(
           `UPDATE documents SET text = $text, metadata = $metadata, embeddings = $embeddings, embeddings_model = $embeddings_model WHERE external_id = $external_id`,
           {
             external_id: data.external_id,
@@ -43,7 +41,7 @@ export const indexToDb = async (data: Props) => {
     }
 
     // Insert new document if no existing document was found or no external_id provided
-    const result = await db.run(
+    const result = await data.db.run(
       `INSERT INTO documents (id, external_id, text, metadata, embeddings, embeddings_model) VALUES ($id, $external_id, $text, $metadata, $embeddings, $embeddings_model)`,
       {
         id: parseInt(count as unknown as string) + 1,

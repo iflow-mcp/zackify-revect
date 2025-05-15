@@ -2,6 +2,7 @@ import { serve, type BunRequest } from "bun";
 import { indexRoute } from "./routes";
 import App from "./frontend/public/app.html";
 import { corsHeaders } from "./shared/corsHeaders";
+import { search } from "./routes/search";
 
 const checkForApiKey =
   (fn: (request: BunRequest) => Promise<Response>) => (request: BunRequest) => {
@@ -17,6 +18,7 @@ const checkForApiKey =
 serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
+    "/search": checkForApiKey(search),
     "/app/*": App,
     "/app": App,
     "/db/:year/:month": (request) => {
@@ -32,6 +34,11 @@ serve({
   },
   error(error) {
     console.error("Error processing request:", error);
+    if (error.message.includes("Unexpected end of JSON input"))
+      return Response.json(
+        { error: "Must post data to this endpoint" },
+        { status: 400 }
+      );
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   },
 });

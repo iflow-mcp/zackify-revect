@@ -2,6 +2,7 @@ import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { indexToDb } from "../shared/indexToDb";
 import { corsHeaders as headers } from "../shared/corsHeaders";
+import { dbConnection } from "../shared/dbConnection";
 
 const schema = z.object({
   external_id: z.string().optional(),
@@ -55,7 +56,11 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  await indexToDb({ ...data, embeddings });
+  const { db } = await dbConnection();
+
+  await indexToDb({ ...data, embeddings, db });
+
+  db.closeSync();
 
   return Response.json(
     {
