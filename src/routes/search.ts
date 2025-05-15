@@ -59,8 +59,7 @@ export const search = async (request: Request) => {
 
   return Response.json(
     {
-      message: "Search results",
-      data: rows.map((row) => ({
+      results: rows.map((row) => ({
         id: row[0],
         text: row[1],
         metadata: JSON.parse(row[2] as string),
