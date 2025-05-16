@@ -47,7 +47,7 @@ export const search = async (request: Request) => {
     FROM documents
     ORDER BY array_cosine_distance(
       embeddings,
-      ?::FLOAT[1024])
+      $embeddings::FLOAT[1024])
     LIMIT 10;
   `);
   search.bind({ embeddings: arrayValue(embeddings) });
