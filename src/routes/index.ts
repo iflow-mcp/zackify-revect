@@ -56,7 +56,7 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  const db = await database();
+  const db = await database(`zach`); // "data.duckdb is default"
 
   await indexToDb({ ...data, embeddings, db });
 

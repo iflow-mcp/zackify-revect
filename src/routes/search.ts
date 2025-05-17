@@ -40,7 +40,7 @@ export const search = async (request: Request) => {
     );
   }
 
-  const db = await database();
+  const db = await database("zach"); // "data.duckdb is default"
 
   const search = await db.prepare(`
     SELECT id, text, metadata

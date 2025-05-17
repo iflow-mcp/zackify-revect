@@ -1,8 +1,18 @@
 import { DuckDBInstance } from "@duckdb/node-api";
 
-export const database = async () => {
-  const newInstance = await DuckDBInstance.create("data.duckdb"); // Create a new instance
-  const db = await newInstance.connect(); // Create a new connection
+export const database = async (name: string) => {
+  const instancePrep = await DuckDBInstance.create(
+    `md:?motherduck_token=${process.env.MOTHERDUCK_TOKEN}`
+  ); // Create a new instance
+  const dbPrep = await instancePrep.connect(); // Create a new connection
+  await dbPrep.run(`CREATE DATABASE IF NOT EXISTS ${name};`);
+  dbPrep.closeSync();
+
+  //now connect to users db
+  const instance = await DuckDBInstance.create(
+    `md:${name}?motherduck_token=${process.env.MOTHERDUCK_TOKEN}`
+  ); // Create a new instance
+  const db = await instance.connect(); // Create a new connection
 
   // Run setup query on the new connection
   await db.run(`

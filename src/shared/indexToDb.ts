@@ -26,13 +26,12 @@ export const indexToDb = async (data: Props) => {
       if (rows && rows.length > 0) {
         // Update existing document
         await data.db.run(
-          `UPDATE documents SET text = $text, metadata = $metadata, embeddings = $embeddings, embeddings_model = $embeddings_model WHERE external_id = $external_id`,
+          `UPDATE documents SET text = $text, metadata = $metadata, embeddings = $embeddings WHERE external_id = $external_id`,
           {
             external_id: data.external_id,
             text: data.text,
             metadata: data.metadata ? JSON.stringify(data.metadata) : null,
             embeddings: arrayValue(data.embeddings),
-            embeddings_model: process.env.AI_EMBEDDING_MODEL as string,
           }
         );
         console.log(`Updated document with external_id ${data.external_id}`);
@@ -42,14 +41,13 @@ export const indexToDb = async (data: Props) => {
 
     // Insert new document if no existing document was found or no external_id provided
     const result = await data.db.run(
-      `INSERT INTO documents (id, external_id, text, metadata, embeddings, embeddings_model) VALUES ($id, $external_id, $text, $metadata, $embeddings, $embeddings_model)`,
+      `INSERT INTO documents (id, external_id, text, metadata, embeddings) VALUES ($id, $external_id, $text, $metadata, $embeddings)`,
       {
         id: parseInt(count as unknown as string) + 1,
         external_id: data.external_id || null,
         text: data.text,
         metadata: data.metadata ? JSON.stringify(data.metadata) : null,
         embeddings: arrayValue(data.embeddings),
-        embeddings_model: process.env.AI_EMBEDDING_MODEL as string,
       }
     );
     console.log(`Inserted ${result.rowsChanged} document ${data.external_id}`);
@@ -58,4 +56,6 @@ export const indexToDb = async (data: Props) => {
       console.error(`Error with document ${data.external_id}:`, e.message);
     }
   }
+
+  await data.db.run("CHECKPOINT;");
 };
