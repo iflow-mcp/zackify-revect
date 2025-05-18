@@ -16,4 +16,4 @@ RUN bun install
 EXPOSE 3000
 
 # Command to start the server
-CMD ["bun", "run", "serve"]
+CMD ["bun", "run", "start"]

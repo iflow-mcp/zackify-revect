@@ -17,34 +17,45 @@ server.tool(
   "Search your database for any information, and list the results in order",
   { text: z.string() },
   async ({ text }) => {
-    //TODO make dynamic
-    const response = await fetch(`${process.env.API_URL}/search`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        //TODO make dynamic
-        Authorization: process.env.API_SECRET as string,
-      },
-      body: JSON.stringify({ text }),
-    });
-    const { results } = (await response.json()) as { results: any[] };
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: `Here are the results for ${text}. Please mention the 'id' and 'source' when telling the user about them.`,
+    try {
+      //TODO make dynamic
+      const response = await fetch(`${process.env.API_URL}/search`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          //TODO make dynamic
+          Authorization: process.env.API_SECRET as string,
         },
-        ...(results
-          .map((result: any) => [
-            {
-              type: "text",
-              text: `id:${result.id}, source:${result.metadata.source}\n\n${result.text}`,
-            },
-          ])
-          .flatMap((x) => x) as { type: "text"; text: string }[]),
-      ],
-    };
+        body: JSON.stringify({ text }),
+      });
+      const { results } = (await response.json()) as { results: any[] };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Here are the results for ${text}. Please mention the 'id' and 'source' when telling the user about them.`,
+          },
+          ...(results
+            .map((result: any) => [
+              {
+                type: "text",
+                text: `id:${result.id}, source:${result.source}\n\n${result.text}`,
+              },
+            ])
+            .flatMap((x) => x) as { type: "text"; text: string }[]),
+        ],
+      };
+    } catch (e) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to search: ${(e as Error).message}`,
+          },
+        ],
+      };
+    }
   }
 );
 
@@ -54,26 +65,38 @@ server.tool(
   "Archive / index / store / persist the last messages to the user's database",
   { text: z.string() },
   async ({ text }) => {
-    //TODO make dynamic
-    const response = await fetch(`${process.env.API_URL}/index`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        //TODO make dynamic
-        Authorization: process.env.API_SECRET as string,
-      },
-      body: JSON.stringify({ text, metadata: { source: "mcp" } }),
-    });
-    const { message } = (await response.json()) as { message: string };
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: message,
+    try {
+      //TODO make dynamic
+      const response = await fetch(`${process.env.API_URL}/index`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          //TODO make dynamic
+          Authorization: process.env.API_SECRET as string,
         },
-      ],
-    };
+        body: JSON.stringify({ text, source: "mcp" }),
+      });
+      const { message } = (await response.json()) as { message: string };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: message,
+          },
+        ],
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to index: ${(e as Error).message}`,
+          },
+        ],
+      };
+    }
   }
 );
 

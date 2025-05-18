@@ -27,27 +27,11 @@ async function getAppliedMigrations(): Promise<string[]> {
 // Example migrations array
 const migrations: Migration[] = [
   {
-    name: "create_users_table",
-    up: () => {
-      return db.exec(`
-        CREATE TABLE IF NOT EXISTS users (
-          id SERIAL PRIMARY KEY,
-          email VARCHAR(255) UNIQUE NOT NULL,
-          name VARCHAR(255) NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-    },
-    down: () => {
-      return db.exec(`DROP TABLE users;`);
-    },
-  },
-  {
     name: "create_documents_table",
     up: () => {
       return db.exec(`
         CREATE TABLE IF NOT EXISTS documents (
-          id SERIAL PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           external_id VARCHAR UNIQUE,
           text TEXT,
           metadata JSONB,

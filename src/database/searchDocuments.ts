@@ -8,12 +8,14 @@ export type SearchDocumentResponse = {
   id: number;
   text: string;
   distance: number;
+  source: string;
   metadata: Record<string, any>;
 };
 
 export type DocumentRow = {
   id: number;
   text: string;
+  source: string;
   distance: number;
   metadata: string;
 };
@@ -24,7 +26,7 @@ export const searchDocuments = async ({
   const rows = db
     .query(
       `
-        SELECT id, text, metadata, vec_distance_cosine(embeddings, $1) as distance
+        SELECT id, text, metadata, source, vec_distance_cosine(embeddings, $1) as distance
         FROM documents
         ORDER BY distance
         LIMIT 10;
@@ -35,6 +37,7 @@ export const searchDocuments = async ({
   return rows.map((row) => ({
     id: row.id,
     text: row.text,
+    source: row.source,
     distance: row.distance,
     metadata: JSON.parse(row.metadata as string),
   }));
