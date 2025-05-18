@@ -1,8 +1,7 @@
 # dependencies (bun install)
 node_modules
 data
-data.duckdb
-data.duckdb.wal
+
 # output
 out
 dist
