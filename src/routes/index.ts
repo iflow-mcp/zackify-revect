@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
-import { indexToDb } from "../shared/indexToDb";
+import { indexDocument } from "../database/indexDocument";
 import { corsHeaders as headers } from "../shared/corsHeaders";
-import { database } from "../shared/database";
 
 const schema = z.object({
   source: z.string(),
@@ -57,7 +56,7 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  await indexToDb({ ...data, embeddings });
+  await indexDocument({ ...data, embeddings });
 
   return Response.json(
     {

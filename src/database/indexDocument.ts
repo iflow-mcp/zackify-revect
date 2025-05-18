@@ -1,6 +1,6 @@
 import { sql } from "bun";
 
-type Props = {
+export type IndexDocumentProps = {
   external_id?: string;
   text: string;
   source: string;
@@ -8,7 +8,7 @@ type Props = {
   metadata?: Record<string, any> | undefined;
 };
 
-export const indexToDb = async (data: Props) => {
+export const indexDocument = async (data: IndexDocumentProps) => {
   try {
     // Check if document with this external_id already exists
     if (data.external_id) {
@@ -17,7 +17,7 @@ export const indexToDb = async (data: Props) => {
 
       if (existingDoc) {
         // Update existing document
-        const result = await sql.unsafe(
+        await sql.unsafe(
           `
             UPDATE documents 
             SET 
