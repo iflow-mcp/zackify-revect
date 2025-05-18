@@ -1,4 +1,5 @@
 import { sql } from "bun";
+import { db } from "./database";
 
 export type IndexDocumentProps = {
   external_id?: string;
@@ -12,12 +13,13 @@ export const indexDocument = async (data: IndexDocumentProps) => {
   try {
     // Check if document with this external_id already exists
     if (data.external_id) {
-      const [existingDoc] =
-        await sql`SELECT id FROM documents WHERE external_id = ${data.external_id}`;
+      const [existingDoc] = db
+        .query("SELECT id FROM documents WHERE external_id = $external_id")
+        .all({ $external_id: data.external_id });
 
       if (existingDoc) {
         // Update existing document
-        await sql.unsafe(
+        db.query(
           `
             UPDATE documents 
             SET 
@@ -26,23 +28,23 @@ export const indexDocument = async (data: IndexDocumentProps) => {
               embeddings = $4,
               source = $5
             WHERE external_id = $1
-          `,
-          [
-            data.external_id,
-            data.text,
-            JSON.stringify(data.metadata || {}),
-            `[${data.embeddings.join(",")}]`,
-            data.source,
-          ]
-        );
+          `
+        ).all({
+          $1: data.external_id,
+          $2: data.text,
+          $3: JSON.stringify(data.metadata || {}),
+          $4: `[${data.embeddings.join(",")}]`,
+          $5: data.source,
+        });
         console.log(`Updated document with external_id ${data.external_id}`);
         return;
       }
     }
 
     // Insert new document if no existing document was found or no external_id provided
-    const result = await sql.unsafe(
-      `
+    const result = db
+      .query(
+        `
         INSERT INTO documents (external_id, text, metadata, embeddings, source)
         VALUES (
           $1,
@@ -51,15 +53,15 @@ export const indexDocument = async (data: IndexDocumentProps) => {
           $4,
           $5
         )
-      `,
-      [
-        data.external_id,
-        data.text,
-        JSON.stringify(data.metadata || {}),
-        `[${data.embeddings.join(",")}]`,
-        data.source,
-      ]
-    );
+      `
+      )
+      .all({
+        $1: data.external_id || null,
+        $2: data.text,
+        $3: JSON.stringify(data.metadata || {}),
+        $4: `[${data.embeddings.join(",")}]`,
+        $5: data.source,
+      });
 
     console.log(`Inserted ${result} document ${data.external_id}`);
   } catch (e) {

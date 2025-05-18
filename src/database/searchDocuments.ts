@@ -1,4 +1,4 @@
-import { sql } from "bun";
+import { db } from "./database";
 
 export type SearchDocumentsProps = {
   embeddings: number[];
@@ -21,17 +21,18 @@ export type DocumentRow = {
 export const searchDocuments = async ({
   embeddings,
 }: SearchDocumentsProps): Promise<SearchDocumentResponse[]> => {
-  const rows = await sql.unsafe(
-    `
-      SELECT id, text, metadata, embeddings <-> $1 AS distance
-      FROM documents
-      ORDER BY embeddings <=> $1
-      LIMIT 10;
-    `,
-    [`[${embeddings.join(",")}]`]
-  );
+  const rows = db
+    .query(
+      `
+        SELECT id, text, metadata, vec_distance_cosine(embeddings, $1) as distance
+        FROM documents
+        ORDER BY distance
+        LIMIT 10;
+      `
+    )
+    .all({ $1: `[${embeddings.join(",")}]` }) as DocumentRow[];
 
-  return rows.map((row: DocumentRow) => ({
+  return rows.map((row) => ({
     id: row.id,
     text: row.text,
     distance: row.distance,
