@@ -18,7 +18,9 @@ export type DocumentRow = {
   metadata: string;
 };
 
-export const searchDocuments = async ({ embeddings }: SearchDocumentsProps) => {
+export const searchDocuments = async ({
+  embeddings,
+}: SearchDocumentsProps): Promise<SearchDocumentResponse[]> => {
   const rows = await sql.unsafe(
     `
       SELECT id, text, metadata, embeddings <-> $1 AS distance
