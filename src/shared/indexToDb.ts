@@ -1,38 +1,39 @@
-import { arrayValue, DuckDBConnection } from "@duckdb/node-api"; // Revert to namespace import
+import { sql } from "bun";
 
 type Props = {
-  db: DuckDBConnection;
   external_id?: string;
   text: string;
+  source: string;
   embeddings: number[];
   metadata?: Record<string, any> | undefined;
 };
 
 export const indexToDb = async (data: Props) => {
-  const result = await data.db.run(`SELECT COUNT(*) FROM documents`);
-  // const result2 = await db.run(`SELECT * FROM documents`);
-  // console.log(await result2.rowCount);
-  const count = (await result.getRows())?.[0];
-  if (!count) return;
-
   try {
     // Check if document with this external_id already exists
     if (data.external_id) {
-      const existingDoc = await data.db.run(
-        `SELECT id FROM documents WHERE external_id = $external_id`,
-        { external_id: data.external_id }
-      );
-      const rows = await existingDoc.getRows();
-      if (rows && rows.length > 0) {
+      const [existingDoc] =
+        await sql`SELECT id FROM documents WHERE external_id = ${data.external_id}`;
+
+      if (existingDoc) {
         // Update existing document
-        await data.db.run(
-          `UPDATE documents SET text = $text, metadata = $metadata, embeddings = $embeddings WHERE external_id = $external_id`,
-          {
-            external_id: data.external_id,
-            text: data.text,
-            metadata: data.metadata ? JSON.stringify(data.metadata) : null,
-            embeddings: arrayValue(data.embeddings),
-          }
+        const result = await sql.unsafe(
+          `
+            UPDATE documents 
+            SET 
+              text = $2,
+              metadata = $3,
+              embeddings = $4,
+              source = $5
+            WHERE external_id = $1
+          `,
+          [
+            data.external_id,
+            data.text,
+            JSON.stringify(data.metadata || {}),
+            `[${data.embeddings.join(",")}]`,
+            data.source,
+          ]
         );
         console.log(`Updated document with external_id ${data.external_id}`);
         return;
@@ -40,22 +41,30 @@ export const indexToDb = async (data: Props) => {
     }
 
     // Insert new document if no existing document was found or no external_id provided
-    const result = await data.db.run(
-      `INSERT INTO documents (id, external_id, text, metadata, embeddings) VALUES ($id, $external_id, $text, $metadata, $embeddings)`,
-      {
-        id: parseInt(count as unknown as string) + 1,
-        external_id: data.external_id || null,
-        text: data.text,
-        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
-        embeddings: arrayValue(data.embeddings),
-      }
+    const result = await sql.unsafe(
+      `
+        INSERT INTO documents (external_id, text, metadata, embeddings, source)
+        VALUES (
+          $1,
+          $2,
+          $3,
+          $4,
+          $5
+        )
+      `,
+      [
+        data.external_id,
+        data.text,
+        JSON.stringify(data.metadata || {}),
+        `[${data.embeddings.join(",")}]`,
+        data.source,
+      ]
     );
-    console.log(`Inserted ${result.rowsChanged} document ${data.external_id}`);
+
+    console.log(`Inserted ${result} document ${data.external_id}`);
   } catch (e) {
     if (e instanceof Error) {
       console.error(`Error with document ${data.external_id}:`, e.message);
     }
   }
-
-  await data.db.run("CHECKPOINT;");
 };

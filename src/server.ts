@@ -1,18 +1,13 @@
 import { serve, type BunRequest } from "bun";
 import { indexRoute } from "./routes";
 import App from "./frontend/public/app.html";
-import { corsHeaders } from "./shared/corsHeaders";
 import { search } from "./routes/search";
-import { dbRoute, dbWalRoute } from "./routes/db";
 import { checkForApiKey } from "./shared/checkForApiKey";
 
 serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(search),
-    //grab db for frontend
-    "/db": checkForApiKey(dbRoute),
-    "/db.wal": checkForApiKey(dbWalRoute),
     //frontend
     "/app/*": App,
     "/app": App,

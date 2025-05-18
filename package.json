@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run --watch src/server.ts",
-    "serve": "bun run src/server.ts"
+    "dev": "bun run --watch src/server.ts",
+    "start": "bun run src/server.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -16,8 +16,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@duckdb/duckdb-wasm": "^1.29.1-dev132.0",
-    "@duckdb/node-api": "^1.2.2-alpha.18",
     "bun-plugin-tailwind": "^0.0.15",
     "openai": "^4.97.0",
     "react": "^19.1.0",

@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { corsHeaders as headers } from "../shared/corsHeaders";
-import { database } from "../shared/database";
-import { arrayValue } from "@duckdb/node-api";
+import { sql } from "bun";
 
 const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
@@ -40,29 +39,23 @@ export const search = async (request: Request) => {
     );
   }
 
-  const db = await database("zach"); // "data.duckdb is default"
-
-  const search = await db.prepare(`
-    SELECT id, text, metadata
+  const rows = await sql.unsafe(
+    `
+    SELECT id, text, metadata, embeddings <-> $1 AS distance
     FROM documents
-    ORDER BY array_cosine_distance(
-      embeddings,
-      $embeddings::FLOAT[1024])
+    ORDER BY embeddings <=> $1
     LIMIT 10;
-  `);
-  search.bind({ embeddings: arrayValue(embeddings) });
-
-  const result = await search.run();
-  const rows = await result.getRows();
-
-  db.closeSync();
+  `,
+    [`[${embeddings.join(",")}]`]
+  );
 
   return Response.json(
     {
-      results: rows.map((row) => ({
-        id: row[0],
-        text: row[1],
-        metadata: JSON.parse(row[2] as string),
+      results: rows.map((row: any) => ({
+        id: row.id,
+        text: row.text,
+        distance: row.distance,
+        metadata: JSON.parse(row.metadata as string),
       })),
     },
     { headers }

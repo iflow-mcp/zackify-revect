@@ -5,6 +5,7 @@ import { corsHeaders as headers } from "../shared/corsHeaders";
 import { database } from "../shared/database";
 
 const schema = z.object({
+  source: z.string(),
   external_id: z.string().optional(),
   text: z.string({ required_error: "Text field is required" }),
   metadata: z.record(z.any()).optional(),
@@ -56,11 +57,7 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  const db = await database(`zach`); // "data.duckdb is default"
-
-  await indexToDb({ ...data, embeddings, db });
-
-  db.closeSync();
+  await indexToDb({ ...data, embeddings });
 
   return Response.json(
     {
