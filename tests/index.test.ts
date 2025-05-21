@@ -1,5 +1,6 @@
 import { expect, describe, test, beforeAll, beforeEach, afterAll } from "bun:test";
 import { indexRoute } from "../src/routes/index";
+import { search } from "../src/routes/search";
 
 // We need to set environment variables before importing the database module
 process.env.DATABASE_PATH = ":memory:";
@@ -30,8 +31,9 @@ mock.module("openai", () => {
   };
 });
 
-// Now we can import the database
+// Now we can import database and migrations
 import { db } from "../src/database/database";
+import { migrations } from "../src/database/migrations";
 
 // Test short and long texts to ensure correct chunking behavior
 const shortText = "This is a short text that should not be split into chunks.";
@@ -43,30 +45,22 @@ Sed imperdiet eros at diam cursus, sed volutpat nibh accumsan. Integer vel tinci
 Nulla facilisi. Cras eu dolor a neque lacinia tincidunt vel vitae mi. Pellentesque habitant morbi tristique.
 `;
 
-describe("Index route", () => {
+describe("Index and Search routes", () => {
   // Set up the test environment
   beforeAll(() => {
-    // Create the necessary tables for testing
+    // Create migrations table
     db.exec(`
-      CREATE TABLE IF NOT EXISTS documents (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        external_id VARCHAR UNIQUE,
-        text TEXT,
-        metadata JSON,
-        embeddings TEXT,
-        source VARCHAR,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-      
-      CREATE TABLE IF NOT EXISTS document_chunks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        document_id INTEGER,
-        text TEXT,
-        embeddings TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (document_id) REFERENCES documents(id)
+      CREATE TABLE IF NOT EXISTS migrations (
+        id SERIAL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL,
+        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    
+    // Run the migrations to create database schema
+    for (const migration of migrations) {
+      migration.up();
+    }
   });
 
   // Clean up before each test
@@ -143,5 +137,53 @@ describe("Index route", () => {
     
     // Verify that all content is preserved
     expect(chunksText).toBe(originalText);
+  });
+  
+  test("should be able to search for indexed documents", async () => {
+    // First, index a document
+    const indexRequest = new Request("http://localhost/index", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source: "test",
+        text: shortText
+      }),
+    });
+    
+    await indexRoute(indexRequest);
+    
+    // Now search for the document
+    const searchRequest = new Request("http://localhost/search", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text: "chunks"
+      }),
+    });
+    
+    const response = await search(searchRequest);
+    const responseData = await response.json();
+    
+    // Verify we get results back
+    expect(response.status).toBe(200);
+    expect(responseData.results).toBeDefined();
+    expect(Array.isArray(responseData.results)).toBe(true);
+    expect(responseData.results.length).toBeGreaterThan(0);
+    
+    // Verify the first result has the expected properties
+    const firstResult = responseData.results[0];
+    expect(firstResult).toHaveProperty("id");
+    expect(firstResult).toHaveProperty("text");
+    expect(firstResult).toHaveProperty("source");
+    expect(firstResult).toHaveProperty("distance");
+    expect(firstResult).toHaveProperty("metadata");
+    
+    // The text should match what we indexed
+    expect(firstResult.text).toBe(shortText);
+    expect(firstResult.source).toBe("test");
   });
 });

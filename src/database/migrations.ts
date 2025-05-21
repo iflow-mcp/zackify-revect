@@ -25,7 +25,7 @@ async function getAppliedMigrations(): Promise<string[]> {
 }
 
 // Example migrations array
-const migrations: Migration[] = [
+export const migrations: Migration[] = [
   {
     name: "create_documents_table",
     up: () => {
