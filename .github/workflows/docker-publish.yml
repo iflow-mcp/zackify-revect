@@ -3,7 +3,6 @@ name: Docker Build and Publish
 on:
   release:
     types: [published]
-  workflow_dispatch:  # Allow manual triggering
 
 env:
   DOCKER_IMAGE: zachrebuild/revect.io
@@ -34,10 +33,8 @@ jobs:
         with:
           images: ${{ env.DOCKER_IMAGE }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=${{ github.event.release.tag_name }}
             type=raw,value=latest
-            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
