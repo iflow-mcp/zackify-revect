@@ -75,20 +75,25 @@ export const indexRoute = async (request: Request) => {
   if (data.text.length > 200) {
     const chunks = splitTextIntoChunks(data.text);
     
-    // Process each chunk
-    for (const chunkText of chunks) {
-      // Generate embeddings for the chunk
-      const chunkEmbeddings = await generate(chunkText, {
+    // First, generate embeddings for all chunks in parallel
+    const chunkPromises = chunks.map(chunkText => 
+      generate(chunkText, {
         apiKey: process.env.AI_API_KEY as string,
         baseURL: process.env.AI_BASE_URL,
-      });
-
-      if (chunkEmbeddings) {
-        // Insert the chunk
+      })
+    );
+    
+    // Wait for all embedding generation to complete
+    const chunkEmbeddings = await Promise.all(chunkPromises);
+    
+    // Then insert all chunks with their embeddings
+    for (let i = 0; i < chunks.length; i++) {
+      const embeddings = chunkEmbeddings[i];
+      if (embeddings) {
         await indexDocumentChunk({
           document_id: documentId,
-          text: chunkText,
-          embeddings: chunkEmbeddings,
+          text: chunks[i],
+          embeddings: embeddings,
         });
       }
     }
