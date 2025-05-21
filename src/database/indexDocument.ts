@@ -42,7 +42,7 @@ export const indexDocument = async (data: IndexDocumentProps): Promise<number | 
     }
 
     // Insert new document if no existing document was found or no external_id provided
-    db.query(
+    const [result] = db.query(
       `
       INSERT INTO documents (external_id, text, metadata, embeddings, source)
       VALUES (
@@ -52,6 +52,7 @@ export const indexDocument = async (data: IndexDocumentProps): Promise<number | 
         $4,
         $5
       )
+      RETURNING id
     `
     ).all({
       $1: data.external_id || null,
@@ -61,8 +62,6 @@ export const indexDocument = async (data: IndexDocumentProps): Promise<number | 
       $5: data.source,
     });
 
-    // Get the last inserted ID
-    const [result] = db.query("SELECT last_insert_rowid() as id").all();
     const documentId = result?.id;
     
     console.log(`Inserted document ${data.external_id} with ID ${documentId}`);
