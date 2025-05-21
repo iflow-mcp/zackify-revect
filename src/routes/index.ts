@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { indexDocument } from "../database/indexDocument";
+import { indexDocumentChunk } from "../database/indexDocumentChunk";
 import { corsHeaders as headers } from "../shared/corsHeaders";
+import { splitTextIntoChunks } from "../utils/splitTextIntoChunks";
 
 const schema = z.object({
   source: z.string(),
@@ -56,13 +58,46 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  await indexDocument({ ...data, embeddings });
+  // Insert the main document and get its ID
+  const documentId = await indexDocument({ ...data, embeddings });
+
+  if (!documentId) {
+    return Response.json(
+      { error: "Failed to index document" },
+      {
+        status: 500,
+        headers,
+      }
+    );
+  }
+
+  // Check if the text needs to be chunked (longer than 200 characters)
+  if (data.text.length > 200) {
+    const chunks = splitTextIntoChunks(data.text);
+    
+    // Process each chunk
+    for (const chunkText of chunks) {
+      // Generate embeddings for the chunk
+      const chunkEmbeddings = await generate(chunkText, {
+        apiKey: process.env.AI_API_KEY as string,
+        baseURL: process.env.AI_BASE_URL,
+      });
+
+      if (chunkEmbeddings) {
+        // Insert the chunk
+        await indexDocumentChunk({
+          document_id: documentId,
+          text: chunkText,
+          embeddings: chunkEmbeddings,
+        });
+      }
+    }
+  }
 
   return Response.json(
     {
       message: "Data received and validated",
       data,
-      embeddings,
     },
     { headers }
   );

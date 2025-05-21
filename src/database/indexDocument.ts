@@ -9,7 +9,7 @@ export type IndexDocumentProps = {
   metadata?: Record<string, any> | undefined;
 };
 
-export const indexDocument = async (data: IndexDocumentProps) => {
+export const indexDocument = async (data: IndexDocumentProps): Promise<number | null> => {
   try {
     // Check if document with this external_id already exists
     if (data.external_id) {
@@ -37,36 +37,40 @@ export const indexDocument = async (data: IndexDocumentProps) => {
           $5: data.source,
         });
         console.log(`Updated document with external_id ${data.external_id}`);
-        return;
+        return existingDoc.id;
       }
     }
 
     // Insert new document if no existing document was found or no external_id provided
-    const result = db
-      .query(
-        `
-        INSERT INTO documents (external_id, text, metadata, embeddings, source)
-        VALUES (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5
-        )
+    db.query(
       `
+      INSERT INTO documents (external_id, text, metadata, embeddings, source)
+      VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5
       )
-      .all({
-        $1: data.external_id || null,
-        $2: data.text,
-        $3: JSON.stringify(data.metadata || {}),
-        $4: `[${data.embeddings.join(",")}]`,
-        $5: data.source,
-      });
+    `
+    ).all({
+      $1: data.external_id || null,
+      $2: data.text,
+      $3: JSON.stringify(data.metadata || {}),
+      $4: `[${data.embeddings.join(",")}]`,
+      $5: data.source,
+    });
 
-    console.log(`Inserted ${result} document ${data.external_id}`);
+    // Get the last inserted ID
+    const [result] = db.query("SELECT last_insert_rowid() as id").all();
+    const documentId = result?.id;
+    
+    console.log(`Inserted document ${data.external_id} with ID ${documentId}`);
+    return documentId;
   } catch (e) {
     if (e instanceof Error) {
       console.error(`Error with document ${data.external_id}:`, e.message);
     }
+    return null;
   }
 };
