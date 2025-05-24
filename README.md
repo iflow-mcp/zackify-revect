@@ -29,7 +29,7 @@ docker run \
   -e AI_EMBEDDING_SIZE="1024" \
   -e API_SECRET="test" \
   --add-host=host.docker.internal:host-gateway \
-  zachrebuild/revect.io:6
+  zachrebuild/revect.io:latest
 ```
 
 ### MCP Setup
