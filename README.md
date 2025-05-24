@@ -7,6 +7,9 @@
 - **Own your data**: everything is stored in a simple sqlite file
 - **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
 
+If you wish to support the project or access your data on many devices, we recommend [revect cloud](revect.io/cloud).
+It's our hosted platform.
+
 ## Upcoming Features
 
 - [ ] Browser extension to auto save or choose to save when right clicking on URLs and articles
@@ -14,6 +17,7 @@
 - [ ] Web interface to search more deeply and interact better with your data
 - [ ] Mobile apps for iOS and Android
 - [ ] More 3rd party integrations
+
 
 ## Getting Started
 
