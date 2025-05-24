@@ -36,22 +36,14 @@ docker run \
 
 To use revect with the MCP (Model Context Protocol) for AI integrations:
 
-1. Install the mcp-remote package:
+1. Use npx with mcp-remote:
 ```bash
-npm install @modelcontextprotocol/mcp-remote
+npx @modelcontextprotocol/mcp-remote
 ```
 
-2. Connect to your running revect instance:
-```javascript
-// In your client code
-import { createClient } from '@modelcontextprotocol/mcp-remote';
-
-const client = createClient({
-  url: 'http://localhost:3009', // Your revect server URL
-  apiSecret: 'test' // Same as API_SECRET in docker setup
-});
-
-// Now you can use client to access revect functionality
-// Example: Search in your database
-const results = await client.tool('semantic-search', { text: 'your search query' });
+2. Connect to your revect instance using:
 ```
+mcp-remote http://localhost:3000/mcp
+```
+
+You can also use this URL directly in supported MCP tools.
