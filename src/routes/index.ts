@@ -87,16 +87,18 @@ export const indexRoute = async (request: Request) => {
     const chunkEmbeddings = await Promise.all(chunkPromises);
     
     // Then insert all chunks with their embeddings
-    for (let i = 0; i < chunks.length; i++) {
-      const embeddings = chunkEmbeddings[i];
-      if (embeddings) {
-        await indexDocumentChunk({
-          document_id: documentId,
-          text: chunks[i],
-          embeddings: embeddings,
-        });
-      }
-    }
+    await Promise.all(
+      chunks.map(async (chunk, i) => {
+        const embeddings = chunkEmbeddings[i];
+        if (embeddings) {
+          await indexDocumentChunk({
+            document_id: documentId,
+            text: chunk,
+            embeddings: embeddings,
+          });
+        }
+      })
+    )
   }
 
   return Response.json(
