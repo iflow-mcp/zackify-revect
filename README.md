@@ -24,7 +24,7 @@ docker run \
   -p 3009:3000 \
   -v ~/Documents/revect:/app/data \
   -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
-  -e AI_API_KEY="ollama" \
+  -e AI_API_KEY="key" \
   -e AI_EMBEDDING_MODEL="mxbai-embed-large" \
   -e AI_EMBEDDING_SIZE="1024" \
   -e API_SECRET="test" \
@@ -36,14 +36,33 @@ docker run \
 
 To use revect with the MCP (Model Context Protocol) for AI integrations:
 
-1. Use npx with mcp-remote:
+1. Direct connect in supported tools:
+
+```
+http://localhost:3000/mcp
+```
+
+2. Usage with mcp-remote:
+
 ```bash
-npx @modelcontextprotocol/mcp-remote
+{
+  "mcpServers": {
+    "revect": {
+      "command": "npx",
+      "args": ["mcp-remote", "http://localhost:8000/mcp"]
+    }
+  }
+}
 ```
 
-2. Connect to your revect instance using:
-```
-mcp-remote http://localhost:3000/mcp
-```
+### MCP Usage
 
-You can also use this URL directly in supported MCP tools.
+At any time, ask your AI to "recall" something. For example:
+
+"Recall that hockey article from yesterday for me"
+
+It will return the source url and information from the article for you to review.
+
+The other option is asking your model to "save" that for me. You may also say "index".
+
+"Index the discussion above for me"
