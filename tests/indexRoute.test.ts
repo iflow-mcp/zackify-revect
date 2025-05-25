@@ -91,13 +91,17 @@ describe("Index Route", () => {
     // Verify that generateEmbeddings was called with the correct text
     expect(generateEmbeddingsMock.mock.calls.length).toBeGreaterThan(0);
     const callArgs = generateEmbeddingsMock.mock.calls[0];
-    expect(callArgs[0]).toBe(sampleText);
-    
-    // Verify that the config was passed correctly
-    expect(callArgs[1]).toEqual({
-      apiKey: "test-key",
-      baseURL: undefined,
-    });
+    if (callArgs) {
+      expect(callArgs[0]).toBe(sampleText);
+      
+      // Verify that the config was passed correctly
+      expect(callArgs[1]).toEqual({
+        apiKey: "test-key",
+        baseURL: undefined,
+      });
+    } else {
+      throw new Error("Expected generateEmbeddingsMock to be called");
+    }
 
     // Check that the document was stored in the database
     const documentCount = db

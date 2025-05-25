@@ -5,7 +5,8 @@ const testFiles = [
   "./tests/splitTextIntoChunks.test.ts",
   "./tests/indexRoute.test.ts",
   "./tests/searchRoute.test.ts",
-  "./tests/documentRoute.test.ts"
+  "./tests/documentRoute.test.ts",
+  "./tests/embedding-model-change.test.ts"
 ];
 
 let allTestsPassing = true;
@@ -14,7 +15,7 @@ for (const testFile of testFiles) {
   console.log(`\n--- Running tests in ${testFile} ---\n`);
   const result = spawnSync("bun", ["test", testFile], { 
     stdio: "inherit",
-    env: { ...process.env, DATABASE_PATH: ":memory:" }
+    env: { ...process.env, DATABASE_PATH: "******" }
   });
   
   if (result.status !== 0) {

@@ -189,8 +189,10 @@ describe("Search Route", () => {
     // Check that database contains embeddings in the documents table
     const docs = db.query("SELECT embeddings FROM documents LIMIT 1").get();
     expect(docs).not.toBeNull();
-    expect(docs).toHaveProperty("embeddings");
-    expect(docs.embeddings).toContain("[");  // Check it has array format
+    if (docs) {
+      expect(docs).toHaveProperty("embeddings");
+      expect((docs as {embeddings: string}).embeddings).toContain("[");  // Check it has array format
+    }
     
     // Verify that the search operation used the generateEmbeddings function
     expect(generateEmbeddingsMock.mock.calls.length).toBeGreaterThan(0);
