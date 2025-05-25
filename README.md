@@ -66,7 +66,7 @@ docker run \
 
 ### 🧠 Running Multiple Containers
 
-You can run multiple revect containers simultaneously, each with its own dedicated purpose. This allows you to organize your knowledge into separate, focused databases.
+You can run multiple revect containers simultaneously, each with its own dedicated purpose. This allows you to organize your knowledge into separate, focused databases. Each container is very simple and efficient, using only 50MB of RAM to stay running in Docker.
 
 **Example use cases:**
 - One container for general knowledge (articles, notes, personal memories)
