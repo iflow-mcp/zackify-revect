@@ -87,12 +87,19 @@ describe("Document Route", () => {
     
     // Verify document properties
     expect(result).toHaveProperty("document");
-    const doc = result.document;
-    expect(doc).toHaveProperty("id", documentId);
-    expect(doc).toHaveProperty("text", "This is a test document for document endpoint");
-    expect(doc).toHaveProperty("source", "test-source");
-    expect(doc).toHaveProperty("metadata");
-    expect(doc.metadata).toHaveProperty("testKey", "testValue");
+    
+    // Type guard to ensure we're checking the success case
+    if ("document" in result) {
+      const doc = result.document;
+      expect(doc).toHaveProperty("id", documentId);
+      expect(doc).toHaveProperty("text", "This is a test document for document endpoint");
+      expect(doc).toHaveProperty("source", "test-source");
+      expect(doc).toHaveProperty("metadata");
+      expect(doc.metadata).toHaveProperty("testKey", "testValue");
+    } else {
+      // This should not happen in this test, but helps TypeScript
+      throw new Error("Expected document in result but got error");
+    }
   });
 
   test("should handle non-existent document id", async () => {
