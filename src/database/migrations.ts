@@ -63,6 +63,23 @@ export const migrations: Migration[] = [
       return db.exec(`DROP TABLE document_chunks;`);
     },
   },
+  {
+    name: "create_metadata_table",
+    up: () => {
+      return db.exec(`
+        CREATE TABLE IF NOT EXISTS metadata (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          key TEXT UNIQUE NOT NULL,
+          value TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    },
+    down: () => {
+      return db.exec(`DROP TABLE metadata;`);
+    },
+  },
 
   // Add more migrations here
 ];

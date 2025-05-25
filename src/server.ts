@@ -4,6 +4,16 @@ import { searchRoute, search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
 import { document, documentRoute } from "./routes/document/document";
 import { mcpRoute } from "./routes/mcp/mcp";
+import { checkEmbeddingModel } from "./startup/checkEmbeddingModel";
+
+// Check if embedding model has changed on startup
+(async () => {
+  try {
+    await checkEmbeddingModel();
+  } catch (error) {
+    console.error("Error checking embedding model:", error);
+  }
+})();
 
 serve({
   port: process.env.PORT || 3000,
