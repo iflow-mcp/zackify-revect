@@ -7,6 +7,9 @@ import { db } from "./database";
  */
 export const getMetadataValue = (key: string): string | null => {
   try {
+    // Ensure the metadata table exists before querying it
+    ensureMetadataTable();
+    
     const result = db
       .query("SELECT value FROM metadata WHERE key = ?")
       .get(key);
@@ -26,6 +29,9 @@ export const getMetadataValue = (key: string): string | null => {
  */
 export const setMetadataValue = (key: string, value: string): boolean => {
   try {
+    // Ensure the metadata table exists before writing to it
+    ensureMetadataTable();
+    
     // Check if the key already exists
     const exists = db.query("SELECT 1 FROM metadata WHERE key = ?").get(key);
     
@@ -47,3 +53,33 @@ export const setMetadataValue = (key: string, value: string): boolean => {
     return false;
   }
 };
+
+/**
+ * Ensures the metadata table exists before using it
+ * This is important if the application is accessing the metadata
+ * before migrations have been run (e.g. during early startup)
+ */
+function ensureMetadataTable() {
+  try {
+    // Check if metadata table exists
+    const tableExists = db.query(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='metadata'"
+    ).get();
+    
+    if (!tableExists) {
+      // Create table if it doesn't exist yet
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS metadata (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          key TEXT UNIQUE NOT NULL,
+          value TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+      console.log("Created metadata table since it didn't exist yet");
+    }
+  } catch (error) {
+    console.error("Error ensuring metadata table exists:", error);
+  }
+}
