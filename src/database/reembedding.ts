@@ -19,6 +19,76 @@ export const reembedAllDocuments = async (): Promise<void> => {
   }
 
   try {
+    // Update the float size in both tables before re-embedding
+    console.log("Updating database schema to accommodate new embedding size...");
+    
+    // Alter documents table to handle potential changes in embedding dimensions
+    await db.exec(`
+      PRAGMA foreign_keys=off;
+      BEGIN TRANSACTION;
+      
+      -- Create temporary table for documents
+      CREATE TABLE temp_documents AS SELECT id, external_id, text, metadata, source, created_at FROM documents;
+      
+      -- Drop original table
+      DROP TABLE documents;
+      
+      -- Recreate table with original schema
+      CREATE TABLE documents (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        external_id TEXT UNIQUE,
+        text TEXT,
+        metadata TEXT,
+        embeddings TEXT,
+        source TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      -- Copy data back
+      INSERT INTO documents (id, external_id, text, metadata, source, created_at)
+      SELECT id, external_id, text, metadata, source, created_at FROM temp_documents;
+      
+      -- Drop temporary table
+      DROP TABLE temp_documents;
+      
+      COMMIT;
+      PRAGMA foreign_keys=on;
+    `);
+    
+    // Similar process for document_chunks table
+    await db.exec(`
+      PRAGMA foreign_keys=off;
+      BEGIN TRANSACTION;
+      
+      -- Create temporary table for document_chunks
+      CREATE TABLE temp_document_chunks AS SELECT id, document_id, text, created_at FROM document_chunks;
+      
+      -- Drop original table
+      DROP TABLE document_chunks;
+      
+      -- Recreate table with original schema
+      CREATE TABLE document_chunks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        document_id INTEGER,
+        text TEXT,
+        embeddings TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (document_id) REFERENCES documents(id)
+      );
+      
+      -- Copy data back
+      INSERT INTO document_chunks (id, document_id, text, created_at)
+      SELECT id, document_id, text, created_at FROM temp_document_chunks;
+      
+      -- Drop temporary table
+      DROP TABLE temp_document_chunks;
+      
+      COMMIT;
+      PRAGMA foreign_keys=on;
+    `);
+    
+    console.log("Database schema updated successfully");
+    
     // Prepare database for batch operations
     await db.run("BEGIN TRANSACTION");
 
