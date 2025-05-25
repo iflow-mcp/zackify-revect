@@ -35,7 +35,7 @@ export const migrations: Migration[] = [
           external_id TEXT UNIQUE,
           text TEXT,
           metadata TEXT,
-          embeddings TEXT,
+          embeddings FLOAT[1024],
           source TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
@@ -53,7 +53,7 @@ export const migrations: Migration[] = [
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           document_id INTEGER,
           text TEXT,
-          embeddings TEXT,
+          embeddings FLOAT[1024],
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (document_id) REFERENCES documents(id)
         );

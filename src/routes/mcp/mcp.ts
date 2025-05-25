@@ -161,27 +161,22 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
 
       await server.connect(transport);
 
-      // Create adapters
-      const reqAdapter = new BunRequestAdapter(request);
-      const resAdapter = new BunResponseAdapter(resolve);
-
       // Parse body for POST requests
-      let parsedBody;
+      let bodyText: string | undefined;
       if (request.method === "POST") {
         try {
-          const bodyText = await request.text();
-          parsedBody = bodyText ? JSON.parse(bodyText) : undefined;
+          bodyText = await request.text();
         } catch (e) {
-          parsedBody = undefined;
+          bodyText = undefined;
         }
       }
 
-      // Handle the request
-      await transport.handleRequest(
-        reqAdapter as any,
-        resAdapter as any,
-        parsedBody
-      );
+      // Create adapters - pass the body text to the request adapter
+      const reqAdapter = new BunRequestAdapter(request, bodyText);
+      const resAdapter = new BunResponseAdapter(resolve);
+
+      // Handle the request - don't pass parsedBody separately
+      await transport.handleRequest(reqAdapter as any, resAdapter as any);
     }) as unknown as Response;
   };
 };
