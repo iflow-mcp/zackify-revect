@@ -21,14 +21,15 @@ With MCP support, you can use revect as a private way to own your data and recal
 - 💬 Instantly recall past conversations across different AI providers
 - 🔒 Enjoy complete privacy with fully local, offline operation
 - 🔌 Connect with expanding web interfaces and third-party integrations
+- Use any embedding model or AI provider!
 
 ## ✨ More Reasons to Use
 
-- 🔄 Minimal dependencies, **less than 100mb** container size
-- 🤖 Bring any embedding model of your choice
+- 🔄 Minimal dependencies, **100mb** complete container size
+- 🤖 Bring any embedding model of your choice (Soon you will be able to change the embedding model, and we will automatically update all of your content)
 - 🧩 Extensible architecture with plans for many extensions
 - 🏠 **Own your data**: everything is stored in a simple SQLite file
-- 🌊 **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
+- 🌊 **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support as well.
 
 If you wish to support the project or access your data across multiple devices, we recommend revect cloud (coming soon) ☁️.
 It's our hosted platform with additional features and seamless synchronization.
