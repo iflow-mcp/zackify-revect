@@ -5,15 +5,17 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "build": "bun build --watch server.ts --outfile server.js --target node"
+    "dev": "API_URL=http://localhost:8000 API_SECRET=test PORT=8001 bun --watch server.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/express": "^5.0.2"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.2"
+    "express": "^5.1.0",
+    "@modelcontextprotocol/sdk": "^1.12.0"
   }
 }
