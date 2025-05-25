@@ -34,6 +34,7 @@ With MCP support, you can use revect as a private way to own your data and recal
 - [🔮 Upcoming Features](#-upcoming-features)
 - [🚀 Getting Started](#-getting-started)
   - [🐳 Docker + Local AI Setup](#-running-fully-local-with-docker--ollama--lm-studio)
+  - [🧠 Running Multiple Containers](#-running-multiple-containers)
   - [🔌 MCP Configuration](#-mcp-setup)
   - [💬 Using MCP](#-mcp-usage)
   - [🔄 Switching Embedding Models](#-switching-embedding-models)
