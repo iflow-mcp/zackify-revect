@@ -41,14 +41,17 @@ It's our hosted platform with additional features and seamless synchronization.
 - [ ] 📱 Mobile apps for iOS and Android
 - [ ] 🔌 More third-party integrations
 
-
 ## 🚀 Getting Started
 
-### 🐳 Running with Docker
+### 🐳 Running fully local with Docker + Ollama / LM Studio
+
+1. Install ollama or LM Studio
+2. `ollama pull mxbai-embed-large`
+3. Run the docker container
 
 ```
 docker run \
-  -p 3009:3000 \
+  -p 8000:3000 \
   -v ~/Documents/revect:/app/data \
   -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
   -e AI_API_KEY="key" \
@@ -66,7 +69,7 @@ To use revect with the MCP (Model Context Protocol) for AI integrations:
 1. Direct connect in supported tools:
 
 ```
-http://localhost:3000/mcp
+http://localhost:8000/mcp
 ```
 
 2. Usage with mcp-remote:
@@ -88,7 +91,15 @@ At any time, ask your AI to "recall" something. For example:
 
 > 🔍 "Recall that hockey article from yesterday for me"
 
-It will return the source URL and information from the article for you to review.
+It will return the source URL and information from chunks of the article that match your search.
+
+To get the full document back, you can ask:
+
+> 🔍 "give me the entire document for that snippet"
+
+or provide it the ID of the document, which would be given in the first step.
+
+Maybe the article mentioned "Baseball", it would still show up as they are both sports.
 
 The other option is asking your model to "save" or "index" content:
 
