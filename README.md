@@ -10,7 +10,7 @@
 
 > **Note:** This project is currently in alpha release. Features and interfaces may change.
 
-*Re*call *vect*ors is a self hosted tool to persist and recall any information indefinitely. 
+**Re**call **vect**ors is a self hosted tool to persist and recall any information indefinitely. 
 
 With MCP support you can use this as a private way to own your data and recall it in any AI system. 
 
