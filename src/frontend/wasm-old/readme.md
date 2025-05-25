@@ -1,1 +1,0 @@
-duckdb has a big limitation in wasm.... you cannot use array values in statements, so you cant do a vector search in wasm ................ defeats the whole point of wasm, keeping this in case support is added, we can use wasm querying then

@@ -11,9 +11,9 @@ type Migration = {
 async function initMigrationsTable() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS migrations (
-      id SERIAL PRIMARY KEY,
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT UNIQUE NOT NULL,
-      applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 }
@@ -32,12 +32,12 @@ export const migrations: Migration[] = [
       return db.exec(`
         CREATE TABLE IF NOT EXISTS documents (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          external_id VARCHAR UNIQUE,
+          external_id TEXT UNIQUE,
           text TEXT,
-          metadata JSONB,
-          embeddings float[1024],
-          source VARCHAR,
-          created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+          metadata TEXT,
+          embeddings TEXT,
+          source TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
       `);
     },
@@ -50,10 +50,10 @@ export const migrations: Migration[] = [
     up: () => {
       return db.exec(`
         CREATE TABLE IF NOT EXISTS document_chunks (
-          id SERIAL PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           document_id INTEGER,
           text TEXT,
-          embeddings float[1024],
+          embeddings TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           FOREIGN KEY (document_id) REFERENCES documents(id)
         );
@@ -86,7 +86,7 @@ async function migrate(direction: "up" | "down", targetMigration?: string) {
           await db.run("BEGIN TRANSACTION");
 
           await migration.up();
-          db.query(`INSERT INTO migrations (name) VALUES ($1)`).get({
+          db.query(`INSERT INTO migrations (name) VALUES ($1)`).run({
             $1: migration.name,
           });
           await db.run("COMMIT");
@@ -112,7 +112,7 @@ async function migrate(direction: "up" | "down", targetMigration?: string) {
 
           await migration.down();
 
-          db.query(`DELETE FROM migrations WHERE name = $1`).get({
+          db.query(`DELETE FROM migrations WHERE name = $1`).run({
             $1: migration.name,
           });
 
@@ -120,30 +120,15 @@ async function migrate(direction: "up" | "down", targetMigration?: string) {
 
           console.log(`Successfully rolled back migration: ${migration.name}`);
         } catch (error) {
+          await db.run("ROLLBACK");
+
           console.error(
             `Failed to roll back migration ${migration.name}:`,
             error
           );
-          await db.run("ROLLBACK");
-
           process.exit(1);
-        }
-
-        if (targetMigration && migration.name === targetMigration) {
-          break;
         }
       }
     }
   }
 }
-
-// CLI interface
-const direction = Bun.argv[2] as "up" | "down";
-const targetMigration = Bun.argv[3];
-
-if (!direction || !["up", "down"].includes(direction)) {
-  console.error("Usage: bun run migrate.ts <up|down> [target-migration]");
-  process.exit(1);
-}
-
-migrate(direction, targetMigration);

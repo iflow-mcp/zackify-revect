@@ -11,7 +11,9 @@ export type IndexDocumentChunkProps = {
  * @param chunk The chunk data to insert
  * @returns boolean indicating success or failure
  */
-export const indexDocumentChunk = async (chunk: IndexDocumentChunkProps): Promise<boolean> => {
+export const indexDocumentChunk = async (
+  chunk: IndexDocumentChunkProps
+): Promise<boolean> => {
   try {
     db.query(
       `
@@ -22,7 +24,7 @@ export const indexDocumentChunk = async (chunk: IndexDocumentChunkProps): Promis
         $3
       )
     `
-    ).all({
+    ).run({
       $1: chunk.document_id,
       $2: chunk.text,
       $3: `[${chunk.embeddings.join(",")}]`,

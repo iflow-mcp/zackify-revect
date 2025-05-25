@@ -1,6 +1,5 @@
 import { serve, type BunRequest } from "bun";
 import { indexRoute } from "./routes";
-import App from "./frontend/public/app.html";
 import { search } from "./routes/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
 
@@ -8,9 +7,6 @@ serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(search),
-    //frontend
-    "/app/*": App,
-    "/app": App,
   },
   error(error) {
     console.error("Error processing request:", error);
