@@ -25,6 +25,7 @@ Common uses:
 ## Current Features
 
 - Minimal dependencies
+- Bring any embedding model of your choice
 - plans for many extensions
 - **Own your data**: everything is stored in a simple sqlite file
 - **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
