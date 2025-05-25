@@ -1,0 +1,18 @@
+# GitHub Copilot Configuration
+version: 1.0
+
+# Pre-agent setup commands
+setup:
+  # Install bun globally first
+  - command: npm install -g bun
+    description: Install bun globally
+  # Use bun to install dependencies (as specified in agents.md)
+  - command: bun install
+    description: Install dependencies with bun
+
+# Environment configuration
+environment:
+  # Ensure TypeScript is available for type checking
+  commands:
+    - command: bun run tsc --noEmit
+      description: Run TypeScript type checking
