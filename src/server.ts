@@ -4,10 +4,19 @@ import { searchRoute, search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
 import { document, documentRoute } from "./routes/document/document";
 import { mcpRoute } from "./routes/mcp/mcp";
+import { checkEmbeddingModel } from "./startup/checkEmbeddingModel";
 
+// Initialize server
+
+// Check if embedding model has changed on startup
+console.log("Checking embedding model configuration...");
+await checkEmbeddingModel();
+console.log("Embedding model check completed");
+
+// Start the server
 serve({
   port: process.env.PORT || 3000,
-  idleTimeout: 255, // 5 minutes - MCP connections may have long periods of inactivity
+  idleTimeout: 0, // 0 means infinite timeout - MCP connections may have long periods of inactivity
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(searchRoute),

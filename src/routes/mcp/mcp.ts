@@ -152,8 +152,6 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
   tools(server, methods);
 
   return async (request: Request) => {
-    console.log("Handling mcp request");
-
     return new Promise(async resolve => {
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
@@ -161,27 +159,23 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
 
       await server.connect(transport);
 
-      // Create adapters
-      const reqAdapter = new BunRequestAdapter(request);
-      const resAdapter = new BunResponseAdapter(resolve);
-
       // Parse body for POST requests
-      let parsedBody;
+      let bodyText: string | undefined;
       if (request.method === "POST") {
         try {
-          const bodyText = await request.text();
-          parsedBody = bodyText ? JSON.parse(bodyText) : undefined;
+          bodyText = await request.text();
         } catch (e) {
-          parsedBody = undefined;
+          bodyText = undefined;
         }
       }
+      console.log("New MCP request", bodyText);
 
-      // Handle the request
-      await transport.handleRequest(
-        reqAdapter as any,
-        resAdapter as any,
-        parsedBody
-      );
+      // Create adapters - pass the body text to the request adapter
+      const reqAdapter = new BunRequestAdapter(request, bodyText);
+      const resAdapter = new BunResponseAdapter(resolve);
+
+      // Handle the request - don't pass parsedBody separately
+      await transport.handleRequest(reqAdapter as any, resAdapter as any);
     }) as unknown as Response;
   };
 };
