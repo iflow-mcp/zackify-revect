@@ -10,8 +10,22 @@
 
 > **Note:** This project is currently in alpha release. Features and interfaces may change.
 
+*Re*call *vect*ors is a self hosted tool to persist and recall any information indefinitely. 
+
+With MCP support you can use this as a private way to own your data and recall it in any AI system. 
+
+Common uses:
+
+- Save and recall articles in the past with semantic search
+- Your data is in a common format, its in a single sqlite file 
+- Bring up past conversations in AI chats, portably between different providers
+- Full local privacy, use it offline
+- Soon, a web interface and more 3rd party integrarions to extend ways to insert data
+- 
 ## Current Features
 
+- Minimal dependencies
+- plans for many extensions
 - **Own your data**: everything is stored in a simple sqlite file
 - **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
 
