@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import { Readable } from "node:stream";
 
 // Adapter to convert to Bun Response
 export class BunResponseAdapter extends EventEmitter {
@@ -113,15 +114,24 @@ export class BunResponseAdapter extends EventEmitter {
 }
 
 export // Adapter to convert Bun Request to Node.js IncomingMessage-like object
-class BunRequestAdapter {
+class BunRequestAdapter extends Readable {
   method: string;
   url: string;
   headers: Record<string, string> = {};
   httpVersion: string = "1.1";
   httpVersionMajor: number = 1;
   httpVersionMinor: number = 1;
+  private bodyBuffer: Buffer | null = null;
+  private bodyRead: boolean = false;
 
-  constructor(private bunRequest: Request) {
+  // Additional properties expected by Node.js IncomingMessage
+  complete: boolean = true;
+  socket: any = null;
+  connection: any = null;
+  aborted: boolean = false;
+
+  constructor(private bunRequest: Request, private body?: string) {
+    super();
     // Set basic properties
     this.method = bunRequest.method;
     this.url =
@@ -131,14 +141,49 @@ class BunRequestAdapter {
     bunRequest.headers.forEach((value, key) => {
       this.headers[key.toLowerCase()] = value;
     });
+
+    // If body was provided, convert to buffer
+    if (body) {
+      this.bodyBuffer = Buffer.from(body);
+    }
+
+    // Set readable state
+    this.readable = true;
+  }
+
+  // Implement the _read method for Readable stream
+  _read() {
+    if (!this.bodyRead && this.bodyBuffer) {
+      this.push(this.bodyBuffer);
+      this.bodyRead = true;
+    }
+    this.push(null); // Signal end of stream
   }
 
   // Override the readable stream methods to handle body
   async getBody() {
+    if (this.body) {
+      return this.body;
+    }
     if (this.bunRequest.body) {
       const text = await this.bunRequest.text();
       return text;
     }
     return "";
+  }
+
+  // Additional methods that might be expected
+  setTimeout(msecs: number, callback?: () => void): this {
+    // No-op for compatibility
+    return this;
+  }
+
+  destroy(error?: Error): this {
+    this.destroyed = true;
+    if (error) {
+      this.emit("error", error);
+    }
+    this.emit("close");
+    return this;
   }
 }
