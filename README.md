@@ -14,8 +14,6 @@
 
 With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
-## Revect Features
-
 - 🔍 Find and retrieve articles from your past with powerful semantic search
 - 💾 Store your data in a simple, portable SQLite file format
 - 💬 Instantly recall past conversations across different AI providers
