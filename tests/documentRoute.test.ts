@@ -6,18 +6,20 @@ import {
   beforeEach,
   afterAll,
   mock,
+  spyOn,
 } from "bun:test";
-import type Database from "bun:sqlite";
-import { setupTestDb, teardownTestDb } from "./helpers/mockDb";
+import Database from "bun:sqlite";
+import * as sqliteVec from "sqlite-vec";
+import { createDocumentsTableSQL } from "../src/database/migrations";
 
 // Set test environment variables
+process.env.DATABASE_PATH = "******"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
 // Mock for generateEmbeddings
 const mockEmbeddings = Array(1536).fill(0.1);
 const generateEmbeddingsMock = mock(async (text, config) => {
-  // Return mock embeddings
   return mockEmbeddings;
 });
 
@@ -28,22 +30,34 @@ mock.module("../src/shared/generateEmbeddings", () => {
   };
 });
 
+// Override the database module before other modules are imported
 describe("Document Route", () => {
-  // Set up the test environment and insert test document
-  let documentId: number;
   let db: Database;
-
+  let documentId: number;
+  
+  // Create a fresh test setup before tests
   beforeAll(async () => {
-    // Create a fresh test database and set it up as global
-    db = setupTestDb();
+    // Create fresh database
+    db = new Database("******");
+    
+    // Configure database
+    db.exec("PRAGMA journal_mode = WAL;");
+    sqliteVec.load(db);
+    db.exec(createDocumentsTableSQL("1536"));
+    
+    // Spy on database module to return our test db
+    mock.module("../src/database/database", () => ({
+      db: db,
+      getDb: () => db
+    }));
   });
-
-  beforeEach(async () => {
-    // Clean up test data
-    db.exec("DELETE FROM document_chunks");
+  
+  // Insert test data before each test
+  beforeEach(() => {
+    // Clear any existing data
     db.exec("DELETE FROM documents");
-
-    // Insert a test document directly into the database
+    
+    // Insert test data
     const sampleText = "This is a test document for document endpoint";
     const sampleSource = "test-source";
     const sampleMetadata = JSON.stringify({ testKey: "testValue" });
@@ -58,25 +72,18 @@ describe("Document Route", () => {
     const document = db.query("SELECT id FROM documents LIMIT 1").get() as { id: number } | null;
     documentId = document?.id || 0;
   });
-
-  // Close the database after all tests
+  
+  // Clean up after all tests
   afterAll(() => {
-    // Properly clean up test database
-    teardownTestDb(db);
+    db.close();
   });
-
+  
   test("should retrieve document by id", async () => {
-    // Skip test if document wasn't created successfully
-    if (!documentId) {
-      console.warn("Skipping test: document not created successfully");
-      return;
-    }
-    
-    // Import the document function - importing every time to ensure we get fresh instance
-    const docImport = await import("../src/routes/document/document");
+    // Import the module only after our mock is set up
+    const { document } = await import("../src/routes/document/document");
     
     // Get document by ID using the handler function directly
-    const result = await docImport.document({ id: documentId });
+    const result = await document({ id: documentId });
     
     // Verify document properties
     expect(result).toHaveProperty("document");
@@ -89,10 +96,10 @@ describe("Document Route", () => {
   });
 
   test("should handle non-existent document id", async () => {
-    // Import the document function - importing every time to ensure we get fresh instance
-    const docImport = await import("../src/routes/document/document");
+    // Import the module only after our mock is set up
+    const { document } = await import("../src/routes/document/document");
     
-    const result = await docImport.document({ id: 9999 });
+    const result = await document({ id: 9999 });
     
     // Verify error response
     expect(result).toHaveProperty("error", "Document not found");
@@ -100,6 +107,9 @@ describe("Document Route", () => {
   });
 
   test("should handle validation errors", async () => {
+    // Import the module only after our mock is set up
+    const { documentRoute } = await import("../src/routes/document/document");
+    
     // Create request with missing ID
     const request = new Request("http://localhost/document", {
       method: "POST",
@@ -109,11 +119,8 @@ describe("Document Route", () => {
       body: JSON.stringify({}),
     });
     
-    // Import the route handler - importing every time to ensure we get fresh instance
-    const docImport = await import("../src/routes/document/document");
-    
     // Process the request
-    const response = await docImport.documentRoute(request);
+    const response = await documentRoute(request);
     const responseData = await response.json();
     
     // Verify validation error
