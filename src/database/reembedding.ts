@@ -1,6 +1,44 @@
 import { db } from "./database";
 import { generateEmbeddings } from "../shared/generateEmbeddings";
 import { setMetadataValue } from "./metadata";
+import { migrations } from "./migrations";
+
+/**
+ * Creates documents table schema with the appropriate embedding size
+ * @param embeddingSize The size to use for the FLOAT array
+ * @returns SQL statement to create the documents table
+ */
+const createDocumentsTableSQL = (embeddingSize: string): string => {
+  return `
+    CREATE TABLE documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      external_id TEXT UNIQUE,
+      text TEXT,
+      metadata TEXT,
+      embeddings FLOAT[${embeddingSize}],
+      source TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+};
+
+/**
+ * Creates document_chunks table schema with the appropriate embedding size
+ * @param embeddingSize The size to use for the FLOAT array
+ * @returns SQL statement to create the document_chunks table
+ */
+const createDocumentChunksTableSQL = (embeddingSize: string): string => {
+  return `
+    CREATE TABLE document_chunks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      document_id INTEGER,
+      text TEXT,
+      embeddings FLOAT[${embeddingSize}],
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (document_id) REFERENCES documents(id)
+    );
+  `;
+};
 
 /**
  * Re-embeds all documents and document chunks using the current embedding model
@@ -33,16 +71,8 @@ export const reembedAllDocuments = async (): Promise<void> => {
       -- Drop original table
       DROP TABLE documents;
       
-      -- Recreate table with original schema
-      CREATE TABLE documents (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        external_id TEXT UNIQUE,
-        text TEXT,
-        metadata TEXT,
-        embeddings TEXT,
-        source TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
+      -- Recreate table with updated schema and embedding size
+      ${createDocumentsTableSQL(embeddingSize)}
       
       -- Copy data back
       INSERT INTO documents (id, external_id, text, metadata, source, created_at)
@@ -66,15 +96,8 @@ export const reembedAllDocuments = async (): Promise<void> => {
       -- Drop original table
       DROP TABLE document_chunks;
       
-      -- Recreate table with original schema
-      CREATE TABLE document_chunks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        document_id INTEGER,
-        text TEXT,
-        embeddings TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (document_id) REFERENCES documents(id)
-      );
+      -- Recreate table with updated schema and embedding size
+      ${createDocumentChunksTableSQL(embeddingSize)}
       
       -- Copy data back
       INSERT INTO document_chunks (id, document_id, text, created_at)
