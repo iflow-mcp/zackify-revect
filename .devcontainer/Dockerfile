@@ -1,16 +1,13 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:latest
+FROM mcr.microsoft.com/devcontainers/javascript-node:22
 
-# Switch to root to install Bun
-USER root
-
-# Install Bun
-RUN curl -fsSL https://bun.sh/install | bash
-
-# Add Bun to PATH for all users
-RUN ln -s /root/.bun/bin/bun /usr/local/bin/bun
-
-# Switch back to the vscode user (default non-root user in dev containers)
-USER vscode
+# Install Bun globally to /usr/local
+RUN curl -fsSL https://bun.sh/install | bash -s "bun-v1.1.42" \
+    && mv /root/.bun /usr/local/bun \
+    && ln -s /usr/local/bun/bin/bun /usr/local/bin/bun \
+    && chmod +x /usr/local/bin/bun
+    
+# Copy node_modules from our public docker image so dependencies are cached
+COPY --from=zachrebuild/revect.io:latest /app/node_modules /workspaces/revect/node_modules
 
 # Verify installation
 RUN bun --version
