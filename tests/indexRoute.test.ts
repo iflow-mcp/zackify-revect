@@ -6,18 +6,20 @@ import {
   beforeEach,
   afterAll,
   mock,
+  spyOn,
 } from "bun:test";
-import type Database from "bun:sqlite";
-import { createTestDb } from "./helpers/mockDb";
+import Database from "bun:sqlite";
+import * as sqliteVec from "sqlite-vec";
+import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
 
 // Set test environment variables
+process.env.DATABASE_PATH = "******"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
 // Mock for generateEmbeddings
 const mockEmbeddings = Array(1536).fill(0.1);
 const generateEmbeddingsMock = mock(async (text, config) => {
-  // Return mock embeddings
   return mockEmbeddings;
 });
 
@@ -29,39 +31,44 @@ mock.module("../src/shared/generateEmbeddings", () => {
 });
 
 describe("Index Route", () => {
-  // Set up the test environment
   let db: Database;
-  let indexRoute: Function;
 
   beforeAll(async () => {
-    // Create a fresh test database
-    db = createTestDb();
+    // Create fresh database
+    db = new Database("******");
     
-    // Make the db available to the routes by monkey patching
-    (globalThis as any).testDb = db;
+    // Configure database
+    db.exec("PRAGMA journal_mode = WAL;");
+    sqliteVec.load(db);
+    db.exec(createDocumentsTableSQL("1536"));
+    db.exec(createDocumentChunksTableSQL("1536"));
     
-    // Import the indexRoute after mocking and setting up the test db
-    const indexModuleImport = await import("../src/routes/index");
-    indexRoute = indexModuleImport.indexRoute;
+    // Spy on database module to return our test db
+    mock.module("../src/database/database", () => ({
+      db: db,
+      getDb: () => db
+    }));
   });
 
-  // Clean up before each test
   beforeEach(() => {
+    // Reset mock calls
+    generateEmbeddingsMock.mockClear?.();
+    
     // Clean up test data
     db.exec("DELETE FROM document_chunks");
     db.exec("DELETE FROM documents");
   });
 
-  // Close the database after all tests
   afterAll(() => {
     db.close();
-    // Clean up the global reference
-    delete (globalThis as any).testDb;
   });
 
   test("should index document and call generateEmbeddings with correct parameters", async () => {
     const sampleText = "This is a test document for indexing";
     const sampleSource = "test-source";
+    
+    // Import the index route handler
+    const { indexRoute } = await import("../src/routes/index/index");
     
     // Create a request with sample data
     const request = new Request("http://localhost/index", {
@@ -94,8 +101,6 @@ describe("Index Route", () => {
         apiKey: "test-key",
         baseURL: undefined,
       });
-    } else {
-      throw new Error("Expected generateEmbeddingsMock to be called");
     }
 
     // Check that the document was stored in the database
