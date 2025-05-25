@@ -6,6 +6,8 @@ import { document, documentRoute } from "./routes/document/document";
 import { mcpRoute } from "./routes/mcp/mcp";
 
 serve({
+  port: process.env.PORT || 3000,
+  idleTimeout: 255, // 5 minutes - MCP connections may have long periods of inactivity
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(searchRoute),
