@@ -63,14 +63,14 @@ jobs:
           
           # Run migrations on previous version
           echo "Running migrations on previous version ${PREV_TAG}"
-          docker run --name prev-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:${PREV_TAG} bun run ./src/database/migrations.ts up
+          docker run --name prev-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:${PREV_TAG} bun run /app/src/database/migrations.ts up
           
           # Build current version for testing (only amd64 for testing)
           docker build -t ${{ env.DOCKER_IMAGE }}:test .
           
           # Test migrations with the new version
           echo "Testing migrations on new version"
-          docker run --name new-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:test bun run ./src/database/migrations.ts up
+          docker run --name new-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:test bun run /app/src/database/migrations.ts up
           
           # Cleanup
           docker rm prev-revect new-revect
