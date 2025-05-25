@@ -1,9 +1,16 @@
-# See https://github.com/devcontainers/images/tree/main/src/javascript-node for base image reference
 FROM mcr.microsoft.com/devcontainers/javascript-node:latest
+
+# Switch to root to install Bun
+USER root
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
-RUN adduser -D bun_user && \
-    chown -R bun_user /root/.bun
-RUN echo 'export PATH="/root/.bun/bin:$PATH"' >> /etc/bash.bashrc
-RUN bun install
+
+# Add Bun to PATH for all users
+RUN ln -s /root/.bun/bin/bun /usr/local/bin/bun
+
+# Switch back to the vscode user (default non-root user in dev containers)
+USER vscode
+
+# Verify installation
+RUN bun --version
