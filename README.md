@@ -64,6 +64,58 @@ docker run \
   zachrebuild/revect.io:latest
 ```
 
+### 🧠 Running Multiple Containers
+
+You can run multiple revect containers simultaneously, each with its own dedicated purpose. This allows you to organize your knowledge into separate, focused databases.
+
+**Example use cases:**
+- One container for general knowledge (articles, notes, personal memories)
+- One container for coding-related knowledge (tutorials, documentation, code snippets)
+
+To run multiple containers, use different ports and volume mounts:
+
+```
+# Container 1: General Knowledge
+docker run \
+  -p 8000:3000 \
+  -v ~/Documents/revect-general:/app/data \
+  -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
+  -e AI_API_KEY="key" \
+  -e AI_EMBEDDING_MODEL="mxbai-embed-large" \
+  -e AI_EMBEDDING_SIZE="1024" \
+  -e API_SECRET="test" \
+  --pull always \
+  --add-host=host.docker.internal:host-gateway \
+  zachrebuild/revect.io:latest
+
+# Container 2: Coding Knowledge
+docker run \
+  -p 8001:3000 \
+  -v ~/Documents/revect-coding:/app/data \
+  -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
+  -e AI_API_KEY="key" \
+  -e AI_EMBEDDING_MODEL="mxbai-embed-large" \
+  -e AI_EMBEDDING_SIZE="1024" \
+  -e API_SECRET="test" \
+  --pull always \
+  --add-host=host.docker.internal:host-gateway \
+  zachrebuild/revect.io:latest
+```
+
+You can then connect to your specific knowledge base through MCP by using the appropriate port:
+
+```
+# Connect to general knowledge base
+http://localhost:8000/mcp
+
+# Connect to coding knowledge base
+http://localhost:8001/mcp
+```
+
+This approach lets you ask your AI to recall from specific knowledge domains. For example:
+- "Connect to my general knowledge base and recall that article about climate change"
+- "Connect to my coding knowledge base and recall how I implemented that React pagination component last month"
+
 ### 🔌 MCP Setup
 
 To use revect with the MCP (Model Context Protocol) for AI integrations:
