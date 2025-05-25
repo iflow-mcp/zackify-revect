@@ -30,7 +30,7 @@ With MCP support, you can use revect as a private way to own your data and recal
 - 🏠 **Own your data**: everything is stored in a simple SQLite file
 - 🌊 **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
 
-If you wish to support the project or access your data across multiple devices, we recommend [revect cloud](https://revect.io/cloud) ☁️.
+If you wish to support the project or access your data across multiple devices, we recommend revect cloud (coming soon) ☁️.
 It's our hosted platform with additional features and seamless synchronization.
 
 ## 🔮 Upcoming Features
