@@ -3,8 +3,4 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "bun install",
-  "settings": {},
-  "extensions": [],
-  "forwardPorts": []
 }
