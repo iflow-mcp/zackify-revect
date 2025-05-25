@@ -58,6 +58,7 @@ docker run \
   -e AI_EMBEDDING_MODEL="mxbai-embed-large" \
   -e AI_EMBEDDING_SIZE="1024" \
   -e API_SECRET="test" \
+  --pull always \
   --add-host=host.docker.internal:host-gateway \
   zachrebuild/revect.io:latest
 ```
