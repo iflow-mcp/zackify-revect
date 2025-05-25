@@ -14,43 +14,58 @@
 
 With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
-- 🔍 Find and retrieve articles from your past with powerful semantic search
-- 💾 Store your data in a simple, portable SQLite file format
-- 💬 Instantly recall past conversations across different AI providers
-- 🔒 Enjoy complete privacy with fully local, offline operation
-- 🔌 Connect with expanding web interfaces and third-party integrations
-- 🤖 Use any embedding model or AI provider!
+- 🔍 **Semantic Superpowers** - Find and retrieve articles from your past with powerful semantic search
+- 💾 **Portable & Simple** - Store your data in a simple, portable SQLite file format
+- 💬 **AI Memory Bridge** - Instantly recall past conversations across different AI providers
+- 🔒 **Privacy First** - Enjoy complete privacy with fully local, offline operation
+- 🔌 **Extensible Ecosystem** - Connect with expanding web interfaces and third-party integrations
+- 🤖 **Model Agnostic** - Use any embedding model or AI provider!
 
 ## ✨ More Reasons to Use
 
-- 🔄 Minimal dependencies, **100mb** complete container size
-- 🤖 Soon you will be able to change the embedding model, and we will automatically update all of your content
-- 🧩 Extensible architecture with plans for many extensions
-- 🏠 **Own your data**: everything is stored in a simple SQLite file
-- 🌊 **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support as well.
+- 🔄 **Lightweight Champion** - Minimal dependencies, **100mb** complete container size
+- 🤖 **Future-Proof Embeddings** - Change embedding models anytime, we'll automatically update all your content
+- 🧩 **Plugin Paradise** - Extensible architecture with plans for many extensions
+- 🏠 **True Data Ownership** - Everything stored in a simple SQLite file you control
+- 🌊 **Real-time MCP Magic** - Streaming HTTP MCP server for seamless AI integration
+
+## 📚 Table of Contents
+
+- [🔮 Upcoming Features](#-upcoming-features)
+- [🚀 Getting Started](#-getting-started)
+  - [🐳 Docker + Local AI Setup](#-running-fully-local-with-docker--ollama--lm-studio)
+  - [🔌 MCP Configuration](#-mcp-setup)
+  - [💬 Using MCP](#-mcp-usage)
+  - [🔄 Switching Embedding Models](#-switching-embedding-models)
+- [☁️ Cloud Option](#️-cloud-option)
+- [🤝 Contributing](#-contributing)
 
 If you wish to support the project or access your data across multiple devices, we recommend revect cloud (coming soon) ☁️.
 It's our hosted platform with additional features and seamless synchronization.
 
 ## 🔮 Upcoming Features
 
-- [ ] 🌐 Browser extension to auto-save or choose to save when right-clicking on URLs and articles
-- [ ] 📝 Obsidian extension to pull in all content and search inside Obsidian
-- [ ] 🖥️ Web interface to search more deeply and interact better with your data
-- [ ] 📱 Mobile apps for iOS and Android
-- [ ] 🔌 More third-party integrations
+Get excited about what's coming next! 🎉
+
+- [ ] 🌐 **Browser Extension** - Auto-save or right-click to save URLs and articles
+- [ ] 📝 **Obsidian Integration** - Pull in all content and search inside Obsidian
+- [ ] 🖥️ **Web Dashboard** - Search more deeply and interact better with your data
+- [ ] 📱 **Mobile Apps** - Native iOS and Android applications
+- [ ] 🔌 **Integration Explosion** - More third-party integrations coming soon
 
 ## 🚀 Getting Started
 
 ### 🐳 Running fully local with Docker + Ollama / LM Studio
 
-1. Install ollama or LM Studio
-2. `ollama pull mxbai-embed-large`
-3. Run the docker container
+Get up and running in minutes with your own private AI memory system! 🏃‍♂️
 
-> **Note:** Any AI provider that follows the OpenAI API specification can be used. Just configure the `AI_BASE_URL` accordingly.
+1. **Install your AI backend** - Choose Ollama, LM Studio, or a hosted platform
+2. **Pull an embedding model** - `ollama pull mxbai-embed-large`
+3. **Launch revect** - Run the Docker container below
 
-```
+> **Pro Tip:** Any AI provider that follows the OpenAI API specification can be used. Just configure the `AI_BASE_URL` accordingly! 🎯
+
+```bash
 docker run \
   -p 8000:3000 \
   -v ~/Documents/revect:/app/data \
@@ -120,17 +135,18 @@ This approach lets you ask your AI to recall from specific knowledge domains. Fo
 
 ### 🔌 MCP Setup
 
-To use revect with the MCP (Model Context Protocol) for AI integrations:
+Connect revect to your favorite AI tools with the Model Context Protocol! 🤝
 
-1. Direct connect in supported tools:
+1. **Direct Connection** (for supported tools):
 
 ```
-http://localhost:8000/mcp
+Name: revect
+url: http://localhost:8000/mcp
 ```
 
-2. Usage with mcp-remote:
+2. **Using mcp-remote** (for broader compatibility with stdio-only clients):
 
-```bash
+```json
 {
   "mcpServers": {
     "revect": {
@@ -143,20 +159,66 @@ http://localhost:8000/mcp
 
 ### 💬 MCP Usage
 
-At any time, ask your AI to "recall" something. For example:
+Transform your AI into a knowledge powerhouse! Here's how to use revect's MCP features:
 
-> 🔍 "Recall that hockey article from yesterday for me"
+#### 🔍 Recalling Information
 
-It will return the source URL and information from chunks of the article that match your search.
+Ask your AI to "recall" anything from your memory vault:
 
-To get the full document back, you can ask:
+> "Recall that hockey article from yesterday for me"
 
-> 🔍 "give me the entire document for that snippet"
+The AI will return the source URL and relevant chunks that match your search. Even if the article mentioned "baseball" instead, our semantic search understands they're both sports! 🏒⚾
 
-or provide it the ID of the document, which would be given in the first step.
+To retrieve the complete document:
 
-Maybe the article mentioned "Baseball", it would still show up as they are both sports.
+> "Give me the entire document for that snippet"
 
-The other option is asking your model to "save" or "index" content:
+Or provide the document ID from the first search result.
 
-> 💾 "Index the discussion above for me"
+#### 💾 Saving Knowledge
+
+Preserve important conversations and content:
+
+> "Index the discussion above for me"
+
+Your AI will save the content to your personal knowledge base for future retrieval!
+
+### 🔄 Switching Embedding Models
+
+We know the AI landscape evolves rapidly, so we've got your back! 🛡️
+
+When you need to change embedding models (like when OpenAI deprecates one), simply update your Docker environment:
+
+```bash
+AI_EMBEDDING_MODEL="new-model-name"
+AI_EMBEDDING_SIZE="1536"
+```
+
+**What happens next?** 🪄
+
+- revect detects the change on startup
+- Automatically re-embeds your entire database
+- Shows progress during the migration
+- Zero data loss, maximum flexibility!
+
+> **Cost Alert:** Be mindful when switching to hosted AI services with large databases - local models are free to re-embed! 💰
+
+## ☁️ Cloud Option
+
+Coming soon! Our hosted platform will offer:
+
+- 🔄 Multi-device synchronization
+- 🚀 Enhanced performance
+- 🛡️ Managed backups
+- ✨ Premium features
+
+## 🤝 Contributing
+
+We'd love your help making revect even better! Check out our [issues page](https://github.com/zackify/revect/issues) to get started.
+
+---
+
+<p align="center">
+  Made with ❤️ by the revect team<br>
+  <strong>Your memory. Your data. Your control.</strong>
+</p>
