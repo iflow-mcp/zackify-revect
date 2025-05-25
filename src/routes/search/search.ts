@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { generateEmbeddings } from "../../shared/generateEmbeddings";
 import { corsHeaders as headers } from "../../shared/corsHeaders";
-import { searchDocuments } from "./searchDocuments";
+import {
+  searchDocuments,
+  type SearchDocumentResponse,
+} from "./searchDocuments";
 
 const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
 });
 
-export const search = async (request: Request) => {
+export const searchRoute = async (request: Request) => {
   const body = await request.json();
   const { error, data, success } = schema.safeParse(body);
 
@@ -24,27 +27,28 @@ export const search = async (request: Request) => {
     );
   }
 
-  const embeddings = await generateEmbeddings(data.text, {
+  const result = await search({ text: data.text });
+
+  return Response.json(result, { headers });
+};
+
+export type SearchResponse =
+  | { results: SearchDocumentResponse[] }
+  | { error: string };
+
+export const search = async ({
+  text,
+}: {
+  text: string;
+}): Promise<SearchResponse> => {
+  const embeddings = await generateEmbeddings(text, {
     apiKey: process.env.AI_API_KEY as string,
     baseURL: process.env.AI_BASE_URL,
   });
 
   if (!embeddings) {
-    return Response.json(
-      { error: "Failed to generate embeddings" },
-      {
-        status: 500,
-        headers,
-      }
-    );
+    return { error: "Failed to generate embeddings" };
   }
 
-  const results = await searchDocuments({ embeddings });
-
-  return Response.json(
-    {
-      results,
-    },
-    { headers }
-  );
+  return { results: await searchDocuments({ embeddings }) };
 };

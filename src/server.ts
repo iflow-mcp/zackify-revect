@@ -1,14 +1,16 @@
-import { serve, type BunRequest } from "bun";
-import { indexRoute } from "./routes/index/index";
-import { search } from "./routes/search/search";
+import { serve } from "bun";
+import { indexRoute, index } from "./routes/index/index";
+import { searchRoute, search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
-import { document } from "./routes/document/document";
+import { document, documentRoute } from "./routes/document/document";
+import { mcpRoute } from "./routes/mcp/mcp";
 
 serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
-    "/search": checkForApiKey(search),
-    "/document": checkForApiKey(document),
+    "/search": checkForApiKey(searchRoute),
+    "/document": checkForApiKey(documentRoute),
+    "/mcp": mcpRoute({ methods: { search, document, index } }),
   },
   error(error) {
     console.error("Error processing request:", error);

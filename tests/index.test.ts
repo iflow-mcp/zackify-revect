@@ -7,7 +7,7 @@ import {
   afterAll,
 } from "bun:test";
 import { indexRoute } from "../src/routes/index";
-import { search } from "../src/routes/search/search";
+import { searchRoute } from "../src/routes/search/search";
 
 // We need to set environment variables before importing the database module
 process.env.DATABASE_PATH = ":memory:";
@@ -185,7 +185,7 @@ describe("Index and Search routes", () => {
       }),
     });
 
-    const response = await search(searchRequest);
+    const response = await searchRoute(searchRequest);
     const responseData = await response.json();
 
     // Verify we get results back

@@ -13,34 +13,15 @@ const schema = z.object({
   metadata: z.record(z.any()).optional(),
 });
 
-export const indexRoute = async (request: Request) => {
-  const body = await request.json();
+export type IndexResult = { error: string } | { message: string };
+export type IndexProps = z.infer<typeof schema>;
+export const index = async (body: IndexProps): Promise<IndexResult> => {
   const { error, data, success } = schema.safeParse(body);
 
   if (!success) {
-    return Response.json(
-      {
-        error: "Validation failed",
-        issues: error.issues,
-      },
-      {
-        status: 400,
-        headers,
-      }
-    );
-  }
-
-  if (data?.metadata) {
-    const metadataString = JSON.stringify(data.metadata);
-    if (new TextEncoder().encode(metadataString).length > 100 * 1024) {
-      return Response.json(
-        { error: "Metadata exceeds 100KB limit" },
-        {
-          status: 413,
-          headers,
-        } // Payload Too Large
-      );
-    }
+    return {
+      error: "Validation failed",
+    };
   }
 
   //todo later get this from the user table or force ollama if running locally
@@ -50,26 +31,14 @@ export const indexRoute = async (request: Request) => {
   });
 
   if (!embeddings) {
-    return Response.json(
-      { error: "Failed to generate embeddings" },
-      {
-        status: 500,
-        headers,
-      }
-    );
+    return { error: "Failed to generate embeddings" };
   }
 
   // Insert the main document and get its ID
   const documentId = await indexDocument({ ...data, embeddings });
 
   if (!documentId) {
-    return Response.json(
-      { error: "Failed to index document" },
-      {
-        status: 500,
-        headers,
-      }
-    );
+    return { error: "Failed to index document" };
   }
 
   db.query("DELETE FROM document_chunks WHERE document_id = ?").run(documentId);
@@ -102,11 +71,19 @@ export const indexRoute = async (request: Request) => {
     })
   );
 
-  return Response.json(
-    {
-      message: "Data received and validated",
-      data,
-    },
-    { headers }
-  );
+  return { message: "Data successfully indexed" };
+};
+
+export const indexRoute = async (request: Request) => {
+  const body = await request.json();
+  const result = await index(body);
+
+  if ("error" in result) {
+    return Response.json(result, {
+      status: 400,
+      headers,
+    });
+  }
+
+  return Response.json(result, { headers });
 };
