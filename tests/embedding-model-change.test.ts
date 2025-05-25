@@ -3,18 +3,14 @@ import { getMetadataValue, setMetadataValue } from "../src/database/metadata";
 import { checkEmbeddingModel } from "../src/startup/checkEmbeddingModel";
 import { reembedAllDocuments } from "../src/database/reembedding";
 
-// Mock the reembedding module
-mock.module("../src/database/reembedding", () => ({
-  reembedAllDocuments: mock.fn(() => Promise.resolve()),
-}));
-
 // Store original environment variables
 const originalEnv = { ...process.env };
 
 describe("Embedding Model Change Detection", () => {
   beforeEach(() => {
-    // Reset mocks
-    mock.resetAll();
+    // Reset mocks and restore original environment
+    mock.restore();
+    process.env = { ...originalEnv };
   });
 
   afterEach(() => {
@@ -23,14 +19,22 @@ describe("Embedding Model Change Detection", () => {
   });
 
   test("should detect when embedding model changes", async () => {
+    // Create fresh mock for reembedding
+    const mockReembedAllDocuments = mock(() => Promise.resolve());
+
+    // Mock the reembedding module
+    mock.module("../src/database/reembedding", () => ({
+      reembedAllDocuments: mockReembedAllDocuments,
+    }));
+
     // Mock the metadata functions
     mock.module("../src/database/metadata", () => ({
-      getMetadataValue: mock.fn((key) => {
+      getMetadataValue: mock((key: string) => {
         if (key === "AI_EMBEDDING_MODEL") return "text-embedding-ada-002";
         if (key === "AI_EMBEDDING_SIZE") return "1536";
         return null;
       }),
-      setMetadataValue: mock.fn(() => true),
+      setMetadataValue: mock(() => true),
     }));
 
     // Set new environment variables
@@ -41,18 +45,26 @@ describe("Embedding Model Change Detection", () => {
     await checkEmbeddingModel();
 
     // Verify reembedAllDocuments was called
-    expect(reembedAllDocuments).toHaveBeenCalled();
+    expect(mockReembedAllDocuments).toHaveBeenCalled();
   });
 
   test("should detect when embedding size changes", async () => {
+    // Create fresh mock for reembedding
+    const mockReembedAllDocuments = mock(() => Promise.resolve());
+
+    // Mock the reembedding module
+    mock.module("../src/database/reembedding", () => ({
+      reembedAllDocuments: mockReembedAllDocuments,
+    }));
+
     // Mock the metadata functions
     mock.module("../src/database/metadata", () => ({
-      getMetadataValue: mock.fn((key) => {
+      getMetadataValue: mock((key: string) => {
         if (key === "AI_EMBEDDING_MODEL") return "text-embedding-3-small";
         if (key === "AI_EMBEDDING_SIZE") return "1536";
         return null;
       }),
-      setMetadataValue: mock.fn(() => true),
+      setMetadataValue: mock(() => true),
     }));
 
     // Set new environment variables
@@ -63,18 +75,26 @@ describe("Embedding Model Change Detection", () => {
     await checkEmbeddingModel();
 
     // Verify reembedAllDocuments was called
-    expect(reembedAllDocuments).toHaveBeenCalled();
+    expect(mockReembedAllDocuments).toHaveBeenCalled();
   });
 
   test("should not re-embed when there's no change", async () => {
+    // Create fresh mock for reembedding
+    const mockReembedAllDocuments = mock(() => Promise.resolve());
+
+    // Mock the reembedding module
+    mock.module("../src/database/reembedding", () => ({
+      reembedAllDocuments: mockReembedAllDocuments,
+    }));
+
     // Mock the metadata functions
     mock.module("../src/database/metadata", () => ({
-      getMetadataValue: mock.fn((key) => {
+      getMetadataValue: mock((key: string) => {
         if (key === "AI_EMBEDDING_MODEL") return "text-embedding-3-small";
         if (key === "AI_EMBEDDING_SIZE") return "1536";
         return null;
       }),
-      setMetadataValue: mock.fn(() => true),
+      setMetadataValue: mock(() => true),
     }));
 
     // Set same environment variables
@@ -85,6 +105,6 @@ describe("Embedding Model Change Detection", () => {
     await checkEmbeddingModel();
 
     // Verify reembedAllDocuments was not called
-    expect(reembedAllDocuments).not.toHaveBeenCalled();
+    expect(mockReembedAllDocuments).not.toHaveBeenCalled();
   });
 });

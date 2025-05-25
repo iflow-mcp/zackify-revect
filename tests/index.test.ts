@@ -82,7 +82,7 @@ describe("Index and Search routes", () => {
     db.close();
   });
 
-  test("should store short text as a single document without chunks", async () => {
+  test("should store short text as a single document with one chunk", async () => {
     // Create a request with short text
     const request = new Request("http://localhost/index", {
       method: "POST",
@@ -104,11 +104,11 @@ describe("Index and Search routes", () => {
       .get() as { count: number };
     expect(documentCount.count).toBe(1);
 
-    // Check document_chunks table - should have no entries as text is short
+    // Check document_chunks table - should have one entry as we always create chunks
     const chunkCount = db
       .query("SELECT COUNT(*) as count FROM document_chunks")
       .get() as { count: number };
-    expect(chunkCount.count).toBe(0);
+    expect(chunkCount.count).toBe(1);
   });
 
   test("should store long text as a document with multiple chunks", async () => {
