@@ -24,22 +24,49 @@ async function getAppliedMigrations(): Promise<string[]> {
   return result.map((row: any) => row.name);
 }
 
+/**
+ * Creates documents table schema with the appropriate embedding size
+ * @param embeddingSize The size to use for the FLOAT array
+ * @returns SQL statement to create the documents table
+ */
+export const createDocumentsTableSQL = (embeddingSize = "1024"): string => {
+  return `
+    CREATE TABLE IF NOT EXISTS documents (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      external_id TEXT UNIQUE,
+      text TEXT,
+      metadata TEXT,
+      embeddings FLOAT[${embeddingSize}],
+      source TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+};
+
+/**
+ * Creates document_chunks table schema with the appropriate embedding size
+ * @param embeddingSize The size to use for the FLOAT array
+ * @returns SQL statement to create the document_chunks table
+ */
+export const createDocumentChunksTableSQL = (embeddingSize = "1024"): string => {
+  return `
+    CREATE TABLE IF NOT EXISTS document_chunks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      document_id INTEGER,
+      text TEXT,
+      embeddings FLOAT[${embeddingSize}],
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (document_id) REFERENCES documents(id)
+    );
+  `;
+};
+
 // Example migrations array
 export const migrations: Migration[] = [
   {
     name: "create_documents_table",
     up: () => {
-      return db.exec(`
-        CREATE TABLE IF NOT EXISTS documents (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          external_id TEXT UNIQUE,
-          text TEXT,
-          metadata TEXT,
-          embeddings FLOAT[1024],
-          source TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
+      return db.exec(createDocumentsTableSQL());
     },
     down: () => {
       return db.exec(`DROP TABLE documents;`);
@@ -48,16 +75,7 @@ export const migrations: Migration[] = [
   {
     name: "create_document_chunks_table",
     up: () => {
-      return db.exec(`
-        CREATE TABLE IF NOT EXISTS document_chunks (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          document_id INTEGER,
-          text TEXT,
-          embeddings FLOAT[1024],
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (document_id) REFERENCES documents(id)
-        );
-      `);
+      return db.exec(createDocumentChunksTableSQL());
     },
     down: () => {
       return db.exec(`DROP TABLE document_chunks;`);
