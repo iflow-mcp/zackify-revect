@@ -25,7 +25,7 @@ const debouncedIndexToApi = debounce(
       setIcon(icon, "mail-warning");
     }
     icon.setCssStyles({
-      animation: null,
+      animation: undefined,
     });
   },
   5000

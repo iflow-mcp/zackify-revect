@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { generate } from "../embed-generation/generate";
 import { indexDocument } from "../database/indexDocument";
+import { indexDocumentChunk } from "../database/indexDocumentChunk";
 import { corsHeaders as headers } from "../shared/corsHeaders";
+import { splitTextIntoChunks } from "../utils/splitTextIntoChunks";
 
 const schema = z.object({
   source: z.string(),
@@ -56,13 +58,53 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
-  await indexDocument({ ...data, embeddings });
+  // Insert the main document and get its ID
+  const documentId = await indexDocument({ ...data, embeddings });
+
+  if (!documentId) {
+    return Response.json(
+      { error: "Failed to index document" },
+      {
+        status: 500,
+        headers,
+      }
+    );
+  }
+
+  // Check if the text needs to be chunked (longer than 200 characters)
+  if (data.text.length > 200) {
+    const chunks = splitTextIntoChunks(data.text);
+    
+    // First, generate embeddings for all chunks in parallel
+    const chunkPromises = chunks.map(chunkText => 
+      generate(chunkText, {
+        apiKey: process.env.AI_API_KEY as string,
+        baseURL: process.env.AI_BASE_URL,
+      })
+    );
+    
+    // Wait for all embedding generation to complete
+    const chunkEmbeddings = await Promise.all(chunkPromises);
+    
+    // Then insert all chunks with their embeddings
+    await Promise.all(
+      chunks.map(async (chunk, i) => {
+        const embeddings = chunkEmbeddings[i];
+        if (embeddings) {
+          await indexDocumentChunk({
+            document_id: documentId,
+            text: chunk,
+            embeddings: embeddings,
+          });
+        }
+      })
+    )
+  }
 
   return Response.json(
     {
       message: "Data received and validated",
       data,
-      embeddings,
     },
     { headers }
   );
