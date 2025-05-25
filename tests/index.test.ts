@@ -206,4 +206,57 @@ describe("Index and Search routes", () => {
     expect(firstResult.text).toBe(shortText);
     expect(firstResult.source).toBe("test");
   });
+
+  test("should require source parameter when indexing documents", async () => {
+    // Create a request without a source parameter
+    const request = new Request("http://localhost/index", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        // No source provided
+        text: shortText,
+      }),
+    });
+
+    // Process the request
+    const response = await indexRoute(request);
+    const responseData = await response.json();
+
+    // Verify we get an error response
+    expect(response.status).toBe(400);
+    expect(responseData.error).toBeDefined();
+  });
+
+  test("should correctly set timestamps when indexing documents", async () => {
+    // Create a request
+    const request = new Request("http://localhost/index", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source: "test",
+        text: shortText,
+      }),
+    });
+
+    // Process the request
+    await indexRoute(request);
+
+    // Check if document has a timestamp
+    const document = db.query("SELECT created_at FROM documents ORDER BY id DESC LIMIT 1").get() as { created_at: string };
+    
+    expect(document).toBeDefined();
+    expect(document.created_at).toBeDefined();
+    expect(new Date(document.created_at).getTime()).not.toBeNaN(); // Valid date
+    
+    // Check if document chunk has a timestamp
+    const chunk = db.query("SELECT created_at FROM document_chunks ORDER BY id DESC LIMIT 1").get() as { created_at: string };
+    
+    expect(chunk).toBeDefined();
+    expect(chunk.created_at).toBeDefined();
+    expect(new Date(chunk.created_at).getTime()).not.toBeNaN(); // Valid date
+  });
 });
