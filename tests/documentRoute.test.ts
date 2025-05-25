@@ -40,15 +40,6 @@ describe("Document Route", () => {
   let documentId: number;
 
   beforeAll(() => {
-    // Create migrations table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS migrations (
-        id SERIAL PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL,
-        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
     // Run the migrations to create database schema
     for (const migration of migrations) {
       migration.up();

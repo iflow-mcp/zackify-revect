@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "PORT=8000 bun run --watch src/server.ts",
     "start": "bun run ./src/database/migrations.ts up && bun run src/server.ts",
-    "test": "bun run tests/run.ts"
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest",
