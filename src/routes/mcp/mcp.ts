@@ -152,8 +152,6 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
   tools(server, methods);
 
   return async (request: Request) => {
-    console.log("Handling mcp request");
-
     return new Promise(async resolve => {
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
@@ -170,6 +168,7 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
           bodyText = undefined;
         }
       }
+      console.log("New MCP request", bodyText);
 
       // Create adapters - pass the body text to the request adapter
       const reqAdapter = new BunRequestAdapter(request, bodyText);
