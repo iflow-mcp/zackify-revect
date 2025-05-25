@@ -1,4 +1,4 @@
-# revect 🚀
+# revect 🚀 ✨ 🧠
 
 <!-- Demo video placeholder - Coming soon! -->
 <p align="center">🎬 Demo video coming soon! 🎬</p>
@@ -10,41 +10,40 @@
 
 > **Note:** This project is currently in alpha release. Features and interfaces may change.
 
-**Re**call **vect**ors is a self hosted tool to persist and recall any information indefinitely. 
+**Re**call **vect**ors is your personal memory vault 🔒 - a self-hosted tool to persist and recall any information indefinitely. Never lose valuable knowledge again!
 
-With MCP support you can use this as a private way to own your data and recall it in any AI system. 
+With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
 Common uses:
 
-- Save and recall articles in the past with semantic search
-- Your data is in a common format, its in a single sqlite file 
-- Bring up past conversations in AI chats, portably between different providers
-- Full local privacy, use it offline
-- Soon, a web interface and more 3rd party integrarions to extend ways to insert data
-- 
-## Current Features
+- 🔍 Find and retrieve articles from your past with powerful semantic search
+- 💾 Store your data in a simple, portable SQLite file format
+- 💬 Instantly recall past conversations across different AI providers
+- 🔒 Enjoy complete privacy with fully local, offline operation
+- 🔌 Connect with expanding web interfaces and third-party integrations
+## ✨ Current Features
 
-- Minimal dependencies
-- Bring any embedding model of your choice
-- plans for many extensions
-- **Own your data**: everything is stored in a simple sqlite file
-- **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
+- 🔄 Minimal dependencies
+- 🤖 Bring any embedding model of your choice
+- 🧩 Extensible architecture with plans for many extensions
+- 🏠 **Own your data**: everything is stored in a simple SQLite file
+- 🌊 **Streaming HTTP MCP server**: index and recall information from any AI system, Claude desktop support
 
-If you wish to support the project or access your data on many devices, we recommend [revect cloud](revect.io/cloud).
-It's our hosted platform.
+If you wish to support the project or access your data across multiple devices, we recommend [revect cloud](https://revect.io/cloud) ☁️.
+It's our hosted platform with additional features and seamless synchronization.
 
-## Upcoming Features
+## 🔮 Upcoming Features
 
-- [ ] Browser extension to auto save or choose to save when right clicking on URLs and articles
-- [ ] Obsidian extension to pull in all content and search inside obsidian
-- [ ] Web interface to search more deeply and interact better with your data
-- [ ] Mobile apps for iOS and Android
-- [ ] More 3rd party integrations
+- [ ] 🌐 Browser extension to auto-save or choose to save when right-clicking on URLs and articles
+- [ ] 📝 Obsidian extension to pull in all content and search inside Obsidian
+- [ ] 🖥️ Web interface to search more deeply and interact better with your data
+- [ ] 📱 Mobile apps for iOS and Android
+- [ ] 🔌 More third-party integrations
 
 
-## Getting Started
+## 🚀 Getting Started
 
-### Running with Docker
+### 🐳 Running with Docker
 
 ```
 docker run \
@@ -59,7 +58,7 @@ docker run \
   zachrebuild/revect.io:latest
 ```
 
-### MCP Setup
+### 🔌 MCP Setup
 
 To use revect with the MCP (Model Context Protocol) for AI integrations:
 
@@ -82,14 +81,14 @@ http://localhost:3000/mcp
 }
 ```
 
-### MCP Usage
+### 💬 MCP Usage
 
 At any time, ask your AI to "recall" something. For example:
 
-"Recall that hockey article from yesterday for me"
+> 🔍 "Recall that hockey article from yesterday for me"
 
-It will return the source url and information from the article for you to review.
+It will return the source URL and information from the article for you to review.
 
-The other option is asking your model to "save" that for me. You may also say "index".
+The other option is asking your model to "save" or "index" content:
 
-"Index the discussion above for me"
+> 💾 "Index the discussion above for me"
