@@ -3,4 +3,4 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:latest
 
 # Install Bun
 RUN curl -fsSL https://bun.sh/install | bash
-ENV PATH="/root/.bun/bin:$PATH"
+RUN echo 'export PATH="/root/.bun/bin:$PATH"' >> /etc/bash.bashrc

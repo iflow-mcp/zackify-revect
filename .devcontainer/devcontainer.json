@@ -6,6 +6,5 @@
   "postCreateCommand": "bun install",
   "settings": {},
   "extensions": [],
-  "forwardPorts": [],
-  "remoteUser": "vscode"
+  "forwardPorts": []
 }
