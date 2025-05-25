@@ -16,7 +16,7 @@ console.log("Embedding model check completed");
 // Start the server
 serve({
   port: process.env.PORT || 3000,
-  idleTimeout: 0, // 5 minutes - MCP connections may have long periods of inactivity
+  idleTimeout: 0, // 0 means infinite timeout - MCP connections may have long periods of inactivity
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(searchRoute),

@@ -163,12 +163,12 @@ export const reembedAllDocuments = async (): Promise<void> => {
       }
     }
     
-    // Commit chunk changes
-    await db.run("COMMIT");
-    
     // Update metadata with current model and size
     setMetadataValue("AI_EMBEDDING_MODEL", embeddingModel);
     setMetadataValue("AI_EMBEDDING_SIZE", embeddingSize || "");
+    
+    // Commit chunk changes
+    await db.run("COMMIT");
     
     console.log("Re-embedding process completed successfully");
   } catch (error) {
