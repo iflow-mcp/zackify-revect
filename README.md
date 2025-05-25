@@ -19,7 +19,7 @@ With MCP support, you can use revect as a private way to own your data and recal
 - 💬 Instantly recall past conversations across different AI providers
 - 🔒 Enjoy complete privacy with fully local, offline operation
 - 🔌 Connect with expanding web interfaces and third-party integrations
-- Use any embedding model or AI provider!
+- 🤖 Use any embedding model or AI provider!
 
 ## ✨ More Reasons to Use
 
@@ -47,6 +47,8 @@ It's our hosted platform with additional features and seamless synchronization.
 1. Install ollama or LM Studio
 2. `ollama pull mxbai-embed-large`
 3. Run the docker container
+
+> **Note:** Any AI provider that follows the OpenAI API specification can be used. Just configure the `AI_BASE_URL` accordingly.
 
 ```
 docker run \
