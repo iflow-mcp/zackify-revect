@@ -9,7 +9,7 @@ import {
 } from "bun:test";
 
 // We need to set environment variables before importing the database module
-process.env.DATABASE_PATH = ":memory:";
+process.env.DATABASE_PATH = "******";
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
