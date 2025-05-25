@@ -7,9 +7,10 @@ import {
   afterAll,
   mock,
 } from "bun:test";
+import type Database from "bun:sqlite";
+import { createTestDb } from "./helpers/mockDb";
 
-// We need to set environment variables before importing the database module
-process.env.DATABASE_PATH = ":memory:";
+// Set test environment variables
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -27,29 +28,21 @@ mock.module("../src/shared/generateEmbeddings", () => {
   };
 });
 
-// Import the indexRoute after mocking
-import { indexRoute } from "../src/routes/index";
-
-// Now we can import database and migrations
-import { db } from "../src/database/database";
-import { migrations } from "../src/database/migrations";
-
 describe("Index Route", () => {
   // Set up the test environment
-  beforeAll(() => {
-    // Create migrations table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS migrations (
-        id SERIAL PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL,
-        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+  let db: Database;
+  let indexRoute: Function;
 
-    // Run the migrations to create database schema
-    for (const migration of migrations) {
-      migration.up();
-    }
+  beforeAll(async () => {
+    // Create a fresh test database
+    db = createTestDb();
+    
+    // Make the db available to the routes by monkey patching
+    (globalThis as any).testDb = db;
+    
+    // Import the indexRoute after mocking and setting up the test db
+    const indexModuleImport = await import("../src/routes/index");
+    indexRoute = indexModuleImport.indexRoute;
   });
 
   // Clean up before each test
@@ -62,6 +55,8 @@ describe("Index Route", () => {
   // Close the database after all tests
   afterAll(() => {
     db.close();
+    // Clean up the global reference
+    delete (globalThis as any).testDb;
   });
 
   test("should index document and call generateEmbeddings with correct parameters", async () => {

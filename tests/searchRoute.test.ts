@@ -7,9 +7,10 @@ import {
   afterAll,
   mock,
 } from "bun:test";
+import type Database from "bun:sqlite";
+import { createTestDb } from "./helpers/mockDb";
 
-// We need to set environment variables before importing the database module
-process.env.DATABASE_PATH = ":memory:";
+// Set test environment variables
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -27,30 +28,25 @@ mock.module("../src/shared/generateEmbeddings", () => {
   };
 });
 
-// Import routes after mocking
-import { indexRoute } from "../src/routes/index";
-import { searchRoute } from "../src/routes/search/search";
-
-// Now we can import database and migrations
-import { db } from "../src/database/database";
-import { migrations } from "../src/database/migrations";
-
 describe("Search Route", () => {
-  // Set up the test environment and index test documents
-  beforeAll(() => {
-    // Create migrations table
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS migrations (
-        id SERIAL PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL,
-        applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+  // Set up the test environment
+  let db: Database;
+  let indexRoute: Function;
+  let searchRoute: Function;
 
-    // Run the migrations to create database schema
-    for (const migration of migrations) {
-      migration.up();
-    }
+  beforeAll(async () => {
+    // Create a fresh test database
+    db = createTestDb();
+    
+    // Make the db available to the routes by monkey patching
+    (globalThis as any).testDb = db;
+    
+    // Import routes after mocking and setting up the test db
+    const indexModuleImport = await import("../src/routes/index");
+    const searchModuleImport = await import("../src/routes/search/search");
+    
+    indexRoute = indexModuleImport.indexRoute;
+    searchRoute = searchModuleImport.searchRoute;
   });
 
   // Set up test data for each test
@@ -82,6 +78,8 @@ describe("Search Route", () => {
   // Close the database after all tests
   afterAll(() => {
     db.close();
+    // Clean up the global reference
+    delete (globalThis as any).testDb;
   });
 
   test("should search for indexed documents and return results from SQLite", async () => {

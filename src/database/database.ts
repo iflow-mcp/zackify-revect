@@ -6,7 +6,14 @@ if (process.env.SQLITE_PATH) {
   Database.setCustomSQLite(process.env.SQLITE_PATH);
 }
 
-export const db = new Database(process.env.DATABASE_PATH || "./data/db.sqlite");
-db.exec("PRAGMA journal_mode = WAL;");
+// Support test environments by allowing a database to be injected
+// This is used by the test helpers to create isolated test databases
+const testDb = (globalThis as any).testDb;
 
-sqliteVec.load(db);
+export const db = testDb || new Database(process.env.DATABASE_PATH || "./data/db.sqlite");
+
+if (!testDb) {
+  // Only configure the main db, test dbs are configured separately
+  db.exec("PRAGMA journal_mode = WAL;");
+  sqliteVec.load(db);
+}
