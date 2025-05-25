@@ -32,23 +32,13 @@ describe("Document Route", () => {
   // Set up the test environment and insert test document
   let documentId: number;
   let db: Database;
-  let indexRoute: Function;
-  let documentRoute: Function;
 
   beforeAll(async () => {
     // Create a fresh test database
     db = createTestDb();
     
-    // Make the db available to the routes by monkey patching
+    // Make the db available for the routes
     (globalThis as any).testDb = db;
-    
-    // Import routes with mocks already in place
-    // We need to dynamically import them to ensure the mocks are applied first
-    const indexModuleImport = await import("../src/routes/index");
-    const documentModuleImport = await import("../src/routes/document/document");
-    
-    indexRoute = indexModuleImport.indexRoute;
-    documentRoute = documentModuleImport.documentRoute;
   });
 
   beforeEach(async () => {
@@ -56,33 +46,25 @@ describe("Document Route", () => {
     db.exec("DELETE FROM document_chunks");
     db.exec("DELETE FROM documents");
 
-    // Insert a test document to retrieve later
+    // Insert a test document directly into the database
     const sampleText = "This is a test document for document endpoint";
     const sampleSource = "test-source";
+    const sampleMetadata = JSON.stringify({ testKey: "testValue" });
+    const embeddingsStr = `[${mockEmbeddings.join(",")}]`;
     
-    // Create a request with sample data
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        source: sampleSource,
-        text: sampleText,
-        metadata: { testKey: "testValue" }
-      }),
-    });
-
-    // Process the request
-    await indexRoute(request);
-
+    db.query(`
+      INSERT INTO documents (text, metadata, embeddings, source)
+      VALUES (?, ?, ?, ?)
+    `).run(sampleText, sampleMetadata, embeddingsStr, sampleSource);
+    
     // Get the document id
-    const document = db.query("SELECT id FROM documents LIMIT 1").get() as { id: number };
+    const document = db.query("SELECT id FROM documents LIMIT 1").get() as { id: number } | null;
     documentId = document?.id || 0;
   });
 
   // Close the database after all tests
   afterAll(() => {
+    // Close our test database
     db.close();
     // Clean up the global reference
     delete (globalThis as any).testDb;
@@ -95,58 +77,35 @@ describe("Document Route", () => {
       return;
     }
     
-    // Create a request to retrieve the document
-    const request = new Request("http://localhost/document", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: documentId,
-      }),
-    });
-
-    // Process the request
-    const response = await documentRoute(request);
-    const responseData = await response.json();
-
-    // Verify response
-    expect(response.status).toBe(200);
-    expect(responseData).toHaveProperty("document");
+    // Import the document function
+    const { document } = await import("../src/routes/document/document");
+    
+    // Get document by ID using the handler function directly
+    const result = await document({ id: documentId });
     
     // Verify document properties
-    const document = responseData.document;
-    expect(document).toHaveProperty("id", documentId);
-    expect(document).toHaveProperty("text", "This is a test document for document endpoint");
-    expect(document).toHaveProperty("source", "test-source");
-    expect(document).toHaveProperty("metadata");
-    expect(document.metadata).toHaveProperty("testKey", "testValue");
+    expect(result).toHaveProperty("document");
+    const doc = result.document;
+    expect(doc).toHaveProperty("id", documentId);
+    expect(doc).toHaveProperty("text", "This is a test document for document endpoint");
+    expect(doc).toHaveProperty("source", "test-source");
+    expect(doc).toHaveProperty("metadata");
+    expect(doc.metadata).toHaveProperty("testKey", "testValue");
   });
 
   test("should handle non-existent document id", async () => {
-    // Create a request with non-existent document id
-    const request = new Request("http://localhost/document", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: 9999, // Non-existent ID
-      }),
-    });
-
-    // Process the request
-    const response = await documentRoute(request);
-    const responseData = await response.json();
-
+    // Import the document function
+    const { document } = await import("../src/routes/document/document");
+    
+    const result = await document({ id: 9999 });
+    
     // Verify error response
-    expect(response.status).toBe(200);
-    expect(responseData).toHaveProperty("error", "Document not found");
-    expect(responseData).not.toHaveProperty("document");
+    expect(result).toHaveProperty("error", "Document not found");
+    expect(result).not.toHaveProperty("document");
   });
 
-  test("should handle invalid request with missing id", async () => {
-    // Create a request without an id
+  test("should handle validation errors", async () => {
+    // Create request with missing ID
     const request = new Request("http://localhost/document", {
       method: "POST",
       headers: {
@@ -154,11 +113,14 @@ describe("Document Route", () => {
       },
       body: JSON.stringify({}),
     });
-
+    
+    // Import the route handler
+    const { documentRoute } = await import("../src/routes/document/document");
+    
     // Process the request
     const response = await documentRoute(request);
     const responseData = await response.json();
-
+    
     // Verify validation error
     expect(response.status).toBe(400);
     expect(responseData).toHaveProperty("error", "Validation failed");
