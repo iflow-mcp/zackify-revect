@@ -1,4 +1,12 @@
-# revect
+# revect 🚀
+
+<!-- Demo video placeholder - Coming soon! -->
+<p align="center">🎬 Demo video coming soon! 🎬</p>
+
+[![Docker Pulls](https://img.shields.io/docker/pulls/zachrebuild/revect.io)](https://hub.docker.com/r/zachrebuild/revect.io)
+[![GitHub Issues](https://img.shields.io/github/issues/zackify/revect)](https://github.com/zackify/revect/issues)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Bun](https://img.shields.io/badge/Bun-Runtime-black?logo=bun)](https://bun.sh/)
 
 > **Note:** This project is currently in alpha release. Features and interfaces may change.
 
