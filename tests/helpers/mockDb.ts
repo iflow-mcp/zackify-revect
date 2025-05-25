@@ -50,3 +50,20 @@ export function createTestDb() {
   
   return testDb;
 }
+
+/**
+ * Set up the test database as a global for the duration of test execution
+ */
+export function setupTestDb() {
+  const db = createTestDb();
+  (globalThis as any).testDb = db;
+  return db;
+}
+
+/**
+ * Clean up the test database after tests are complete
+ */
+export function teardownTestDb(db: Database) {
+  db.close();
+  delete (globalThis as any).testDb;
+}

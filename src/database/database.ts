@@ -6,10 +6,11 @@ if (process.env.SQLITE_PATH) {
   Database.setCustomSQLite(process.env.SQLITE_PATH);
 }
 
-// Create a singleton database object per test
-let _db: Database | null = null;
-
-// Get the database instance - creates a new one if it doesn't exist
+/**
+ * Get the database instance
+ * This function always returns the current database, 
+ * checking for a test database first, then falling back to the singleton
+ */
 export function getDb(): Database {
   // For tests, we support injecting a test database instance
   const testDb = (globalThis as any).testDb;
@@ -17,15 +18,24 @@ export function getDb(): Database {
     return testDb;
   }
   
-  // For normal operation, use the singleton pattern
-  if (!_db) {
-    _db = new Database(process.env.DATABASE_PATH || "./data/db.sqlite");
-    _db.exec("PRAGMA journal_mode = WAL;");
-    sqliteVec.load(_db);
+  // For normal operation, create a singleton
+  if (!(globalThis as any)._dbSingleton) {
+    const dbPath = process.env.DATABASE_PATH || "./data/db.sqlite";
+    console.log(`Creating database connection to ${dbPath}`);
+    
+    (globalThis as any)._dbSingleton = new Database(dbPath);
+    (globalThis as any)._dbSingleton.exec("PRAGMA journal_mode = WAL;");
+    sqliteVec.load((globalThis as any)._dbSingleton);
   }
   
-  return _db;
+  return (globalThis as any)._dbSingleton;
 }
 
-// Provide a backward-compatible db export for existing code
-export const db = getDb();
+// Create and export a db proxy that always returns the current database instance
+// This ensures that even code using the imported db directly will get the test db when appropriate
+export const db = new Proxy({} as Database, {
+  get: function(target, prop) {
+    const currentDb = getDb();
+    return currentDb[prop as keyof Database];
+  }
+});

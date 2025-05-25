@@ -8,7 +8,7 @@ import {
   mock,
 } from "bun:test";
 import type Database from "bun:sqlite";
-import { createTestDb } from "./helpers/mockDb";
+import { setupTestDb, teardownTestDb } from "./helpers/mockDb";
 
 // Set test environment variables
 process.env.AI_API_KEY = "test-key";
@@ -34,11 +34,8 @@ describe("Document Route", () => {
   let db: Database;
 
   beforeAll(async () => {
-    // Create a fresh test database
-    db = createTestDb();
-    
-    // Make the db available for the routes
-    (globalThis as any).testDb = db;
+    // Create a fresh test database and set it up as global
+    db = setupTestDb();
   });
 
   beforeEach(async () => {
@@ -64,10 +61,8 @@ describe("Document Route", () => {
 
   // Close the database after all tests
   afterAll(() => {
-    // Close our test database
-    db.close();
-    // Clean up the global reference
-    delete (globalThis as any).testDb;
+    // Properly clean up test database
+    teardownTestDb(db);
   });
 
   test("should retrieve document by id", async () => {
@@ -77,11 +72,11 @@ describe("Document Route", () => {
       return;
     }
     
-    // Import the document function
-    const { document } = await import("../src/routes/document/document");
+    // Import the document function - importing every time to ensure we get fresh instance
+    const docImport = await import("../src/routes/document/document");
     
     // Get document by ID using the handler function directly
-    const result = await document({ id: documentId });
+    const result = await docImport.document({ id: documentId });
     
     // Verify document properties
     expect(result).toHaveProperty("document");
@@ -94,10 +89,10 @@ describe("Document Route", () => {
   });
 
   test("should handle non-existent document id", async () => {
-    // Import the document function
-    const { document } = await import("../src/routes/document/document");
+    // Import the document function - importing every time to ensure we get fresh instance
+    const docImport = await import("../src/routes/document/document");
     
-    const result = await document({ id: 9999 });
+    const result = await docImport.document({ id: 9999 });
     
     // Verify error response
     expect(result).toHaveProperty("error", "Document not found");
@@ -114,11 +109,11 @@ describe("Document Route", () => {
       body: JSON.stringify({}),
     });
     
-    // Import the route handler
-    const { documentRoute } = await import("../src/routes/document/document");
+    // Import the route handler - importing every time to ensure we get fresh instance
+    const docImport = await import("../src/routes/document/document");
     
     // Process the request
-    const response = await documentRoute(request);
+    const response = await docImport.documentRoute(request);
     const responseData = await response.json();
     
     // Verify validation error
