@@ -1,4 +1,4 @@
-import { db } from "./database";
+import { db } from "../../database/database";
 
 export type IndexDocumentChunkProps = {
   document_id: number;

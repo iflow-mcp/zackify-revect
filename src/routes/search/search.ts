@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { generate } from "../embed-generation/generate";
-import { corsHeaders as headers } from "../shared/corsHeaders";
-import { sql } from "bun";
-import { searchDocuments } from "../database/searchDocuments";
+import { generateEmbeddings } from "../../shared/generateEmbeddings";
+import { corsHeaders as headers } from "../../shared/corsHeaders";
+import { searchDocuments } from "./searchDocuments";
 
 const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
@@ -25,7 +24,7 @@ export const search = async (request: Request) => {
     );
   }
 
-  const embeddings = await generate(data.text, {
+  const embeddings = await generateEmbeddings(data.text, {
     apiKey: process.env.AI_API_KEY as string,
     baseURL: process.env.AI_BASE_URL,
   });

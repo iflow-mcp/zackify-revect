@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-export const generate = async (
+export const generateEmbeddings = async (
   input: string,
   config: { apiKey: string; baseURL?: string }
 ) => {

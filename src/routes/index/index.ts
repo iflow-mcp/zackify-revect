@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { generate } from "../embed-generation/generate";
-import { indexDocument } from "../database/indexDocument";
-import { indexDocumentChunk } from "../database/indexDocumentChunk";
-import { corsHeaders as headers } from "../shared/corsHeaders";
-import { splitTextIntoChunks } from "../utils/splitTextIntoChunks";
+import { generateEmbeddings } from "../../shared/generateEmbeddings";
+import { indexDocument } from "./indexDocument";
+import { indexDocumentChunk } from "./indexDocumentChunk";
+import { corsHeaders as headers } from "../../shared/corsHeaders";
+import { splitTextIntoChunks } from "../../utils/splitTextIntoChunks";
+import { db } from "../../database/database";
 
 const schema = z.object({
   source: z.string(),
@@ -43,7 +44,7 @@ export const indexRoute = async (request: Request) => {
   }
 
   //todo later get this from the user table or force ollama if running locally
-  const embeddings = await generate(data.text, {
+  const embeddings = await generateEmbeddings(data.text, {
     apiKey: process.env.AI_API_KEY as string,
     baseURL: process.env.AI_BASE_URL,
   });
@@ -71,35 +72,35 @@ export const indexRoute = async (request: Request) => {
     );
   }
 
+  db.query("DELETE FROM document_chunks WHERE document_id = ?").run(documentId);
+
   // Check if the text needs to be chunked (longer than 200 characters)
-  if (data.text.length > 200) {
-    const chunks = splitTextIntoChunks(data.text);
-    
-    // First, generate embeddings for all chunks in parallel
-    const chunkPromises = chunks.map(chunkText => 
-      generate(chunkText, {
-        apiKey: process.env.AI_API_KEY as string,
-        baseURL: process.env.AI_BASE_URL,
-      })
-    );
-    
-    // Wait for all embedding generation to complete
-    const chunkEmbeddings = await Promise.all(chunkPromises);
-    
-    // Then insert all chunks with their embeddings
-    await Promise.all(
-      chunks.map(async (chunk, i) => {
-        const embeddings = chunkEmbeddings[i];
-        if (embeddings) {
-          await indexDocumentChunk({
-            document_id: documentId,
-            text: chunk,
-            embeddings: embeddings,
-          });
-        }
-      })
-    )
-  }
+  const chunks = splitTextIntoChunks(data.text);
+
+  // First, generate embeddings for all chunks in parallel
+  const chunkPromises = chunks.map(chunkText =>
+    generateEmbeddings(chunkText, {
+      apiKey: process.env.AI_API_KEY as string,
+      baseURL: process.env.AI_BASE_URL,
+    })
+  );
+
+  // Wait for all embedding generation to complete
+  const chunkEmbeddings = await Promise.all(chunkPromises);
+
+  // Then insert all chunks with their embeddings
+  await Promise.all(
+    chunks.map(async (chunk, i) => {
+      const embeddings = chunkEmbeddings[i];
+      if (embeddings) {
+        await indexDocumentChunk({
+          document_id: documentId,
+          text: chunk,
+          embeddings: embeddings,
+        });
+      }
+    })
+  );
 
   return Response.json(
     {

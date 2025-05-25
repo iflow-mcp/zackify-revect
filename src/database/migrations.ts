@@ -132,3 +132,24 @@ async function migrate(direction: "up" | "down", targetMigration?: string) {
     }
   }
 }
+// Run migrations when script is executed directly
+if (import.meta.main) {
+  const args = process.argv.slice(2);
+  const direction = args[0]?.toLowerCase();
+
+  if (direction !== "up" && direction !== "down") {
+    console.error("Usage: bun run migrations.ts [up|down]");
+    process.exit(1);
+  }
+
+  console.log(`Running migrations: ${direction}`);
+  migrate(direction)
+    .then(() => {
+      console.log("Migration complete");
+      process.exit(0);
+    })
+    .catch(error => {
+      console.error("Migration failed:", error);
+      process.exit(1);
+    });
+}

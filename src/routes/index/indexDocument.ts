@@ -1,5 +1,5 @@
 import { sql } from "bun";
-import { db } from "./database";
+import { db } from "../../database/database";
 
 export type IndexDocumentProps = {
   external_id?: string;

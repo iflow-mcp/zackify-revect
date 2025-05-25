@@ -1,12 +1,14 @@
 import { serve, type BunRequest } from "bun";
-import { indexRoute } from "./routes";
-import { search } from "./routes/search";
+import { indexRoute } from "./routes/index/index";
+import { search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
+import { document } from "./routes/document/document";
 
 serve({
   routes: {
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(search),
+    "/document": checkForApiKey(document),
   },
   error(error) {
     console.error("Error processing request:", error);
@@ -19,4 +21,4 @@ serve({
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   },
 });
-console.log("revect.io now running");
+console.log(`revect.io now running on ${process.env.PORT || 3000}`);
