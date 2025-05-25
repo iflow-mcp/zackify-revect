@@ -116,6 +116,8 @@ This approach lets you ask your AI to recall from specific knowledge domains. Fo
 - "Connect to my general knowledge base and recall that article about climate change"
 - "Connect to my coding knowledge base and recall how I implemented that React pagination component last month"
 
+<p align="center">🎬 <i>Video example: Adding revect to your command line interface</i> - Coming soon! 🎬</p>
+
 ### 🔌 MCP Setup
 
 To use revect with the MCP (Model Context Protocol) for AI integrations:
