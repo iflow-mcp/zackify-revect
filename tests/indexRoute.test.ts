@@ -99,7 +99,7 @@ describe("Index Route", () => {
       // Verify that the config was passed correctly
       expect(callArgs[1]).toEqual({
         apiKey: "test-key",
-        baseURL: undefined,
+        baseURL: process.env.AI_BASE_URL,
       });
     }
 
