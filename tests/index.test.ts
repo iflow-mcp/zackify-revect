@@ -61,10 +61,10 @@ describe("Index and Search routes", () => {
   });
 
   test("should store short text as a single document with one chunk", async () => {
+    const shortText = "This is a short test document.";
+    
     // Import the module
     const { indexRoute } = await import("../src/routes/index/index");
-    
-    const shortText = "This is a short test document.";
     
     // Create a request for indexing
     const request = new Request("http://localhost/index", {
