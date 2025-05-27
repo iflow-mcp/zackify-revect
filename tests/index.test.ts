@@ -65,8 +65,6 @@ describe("Index and Search routes", () => {
   });
 
   test("should store short text as a single document with one chunk", async () => {
-    const shortText = "This is a short test document.";
-
     // Create a request for indexing
     const request = new Request("http://localhost/index", {
       method: "POST",
@@ -75,7 +73,7 @@ describe("Index and Search routes", () => {
       },
       body: JSON.stringify({
         source: "test-source",
-        text: shortText,
+        text: "This is a short test document.",
       }),
     });
 
