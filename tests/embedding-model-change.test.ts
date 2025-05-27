@@ -6,6 +6,19 @@ import { reembedAllDocuments } from "../src/database/reembedding";
 // Store original environment variables
 const originalEnv = { ...process.env };
 
+// Mock for generateEmbeddings
+const mockEmbeddings = Array(1536).fill(0.1);
+const generateEmbeddingsMock = mock(async (text, config) => {
+  return mockEmbeddings;
+});
+
+// Mock the generateEmbeddings module
+mock.module("../src/shared/generateEmbeddings", () => {
+  return {
+    generateEmbeddings: generateEmbeddingsMock,
+  };
+});
+
 // Helper function to setup mocks for a test
 const setupMocks = (storedModel: string, storedSize: string) => {
   // Create fresh mock for reembedding
