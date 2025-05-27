@@ -202,7 +202,7 @@ describe("Index and Search routes", () => {
       },
       body: JSON.stringify({
         // No source provided
-        text: shortText,
+        text: "This is a short test document.",
       }),
     });
 
@@ -224,7 +224,7 @@ describe("Index and Search routes", () => {
       },
       body: JSON.stringify({
         source: "test",
-        text: shortText,
+        text: "This is a short test document.",
       }),
     });
 
@@ -232,15 +232,19 @@ describe("Index and Search routes", () => {
     await indexRoute(request);
 
     // Check if document has a timestamp
-    const document = db.query("SELECT created_at FROM documents ORDER BY id DESC LIMIT 1").get() as { created_at: string };
-    
+    const document = db
+      .query("SELECT created_at FROM documents ORDER BY id DESC LIMIT 1")
+      .get() as { created_at: string };
+
     expect(document).toBeDefined();
     expect(document.created_at).toBeDefined();
     expect(new Date(document.created_at).getTime()).not.toBeNaN(); // Valid date
-    
+
     // Check if document chunk has a timestamp
-    const chunk = db.query("SELECT created_at FROM document_chunks ORDER BY id DESC LIMIT 1").get() as { created_at: string };
-    
+    const chunk = db
+      .query("SELECT created_at FROM document_chunks ORDER BY id DESC LIMIT 1")
+      .get() as { created_at: string };
+
     expect(chunk).toBeDefined();
     expect(chunk.created_at).toBeDefined();
     expect(new Date(chunk.created_at).getTime()).not.toBeNaN(); // Valid date
