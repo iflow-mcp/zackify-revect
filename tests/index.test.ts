@@ -10,7 +10,11 @@ import {
 } from "bun:test";
 import Database from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
-import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
+import {
+  createDocumentsTableSQL,
+  createDocumentChunksTableSQL,
+} from "../src/database/migrations";
+import { indexRoute } from "../src/routes/index/index";
 
 // Set test environment variables
 process.env.DATABASE_PATH = "******"; // In-memory database for tests
@@ -36,17 +40,17 @@ describe("Index and Search routes", () => {
   beforeAll(async () => {
     // Create fresh database
     db = new Database("******");
-    
+
     // Configure database
     db.exec("PRAGMA journal_mode = WAL;");
     sqliteVec.load(db);
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
-    
+
     // Spy on database module to return our test db
     mock.module("../src/database/database", () => ({
       db: db,
-      getDb: () => db
+      getDb: () => db,
     }));
   });
 
@@ -62,10 +66,7 @@ describe("Index and Search routes", () => {
 
   test("should store short text as a single document with one chunk", async () => {
     const shortText = "This is a short test document.";
-    
-    // Import the module
-    const { indexRoute } = await import("../src/routes/index/index");
-    
+
     // Create a request for indexing
     const request = new Request("http://localhost/index", {
       method: "POST",
@@ -83,18 +84,22 @@ describe("Index and Search routes", () => {
     expect(response.status).toBe(200);
 
     // Check that one document was stored
-    const docCount = db.query("SELECT COUNT(*) as count FROM documents").get() as { count: number };
+    const docCount = db
+      .query("SELECT COUNT(*) as count FROM documents")
+      .get() as { count: number };
     expect(docCount.count).toBe(1);
 
     // For short text, we should have just one chunk
-    const chunkCount = db.query("SELECT COUNT(*) as count FROM document_chunks").get() as { count: number };
+    const chunkCount = db
+      .query("SELECT COUNT(*) as count FROM document_chunks")
+      .get() as { count: number };
     expect(chunkCount.count).toBe(1);
   });
 
   test("should store long text as a document with multiple chunks", async () => {
     // Import the module
     const { indexRoute } = await import("../src/routes/index/index");
-    
+
     // Create a long text that will be split into multiple chunks
     const longText = `
       Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia, nunc eu tincidunt lobortis, 
@@ -106,7 +111,7 @@ describe("Index and Search routes", () => {
       Fusce eget metus quis magna mollis rhoncus. Pellentesque habitant morbi tristique senectus et netus et 
       malesuada fames ac turpis egestas. Proin at semper libero. Nullam non sollicitudin risus.
     `;
-    
+
     // Create a request for indexing
     const request = new Request("http://localhost/index", {
       method: "POST",
@@ -124,11 +129,15 @@ describe("Index and Search routes", () => {
     expect(response.status).toBe(200);
 
     // Check that one document was stored
-    const docCount = db.query("SELECT COUNT(*) as count FROM documents").get() as { count: number };
+    const docCount = db
+      .query("SELECT COUNT(*) as count FROM documents")
+      .get() as { count: number };
     expect(docCount.count).toBe(1);
 
     // For long text, we should have multiple chunks
-    const chunkCount = db.query("SELECT COUNT(*) as count FROM document_chunks").get() as { count: number };
+    const chunkCount = db
+      .query("SELECT COUNT(*) as count FROM document_chunks")
+      .get() as { count: number };
     expect(chunkCount.count).toBeGreaterThan(1);
   });
 
@@ -136,10 +145,11 @@ describe("Index and Search routes", () => {
     // Import modules
     const { indexRoute } = await import("../src/routes/index/index");
     const { searchRoute } = await import("../src/routes/search/search");
-    
+
     // First, index a document
-    const text = "Here is some text about artificial intelligence and machine learning";
-    
+    const text =
+      "Here is some text about artificial intelligence and machine learning";
+
     // Create a request for indexing
     const indexRequest = new Request("http://localhost/index", {
       method: "POST",
@@ -154,7 +164,7 @@ describe("Index and Search routes", () => {
 
     // Process the index request
     await indexRoute(indexRequest);
-    
+
     // Now search for it
     const searchRequest = new Request("http://localhost/search", {
       method: "POST",
@@ -165,18 +175,18 @@ describe("Index and Search routes", () => {
         text: "artificial intelligence",
       }),
     });
-    
+
     // Process the search request
     const searchResponse = await searchRoute(searchRequest);
     const searchData = await searchResponse.json();
-    
+
     // Verify search results
     expect(searchResponse.status).toBe(200);
     expect(searchData.results).toBeDefined();
-    
+
     // Since our mock always returns the same embeddings, any search will match
     expect(searchData.results.length).toBeGreaterThan(0);
-    
+
     // Check the first result
     if (searchData.results.length > 0) {
       const result = searchData.results[0];
