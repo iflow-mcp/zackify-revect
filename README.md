@@ -171,6 +171,11 @@ claude mcp add-from-claude-desktop
 
 Now you can recall information and persist information for quick access outside of Claude Code's hard coded memory files.
 
+**Benefits for multi-environment usage:**
+- 🐳 **Perfect for Docker environments** - Access your memory vault from Claude Code running in containers without duplicating configuration files
+- 🔄 **Unified MCP client management** - Avoid manually configuring MCP servers across multiple environments and development setups
+- 🌐 **Consistent memory access** - Whether you're in Claude Desktop, Claude Code, or other MCP-enabled tools, your memory vault stays connected
+
 ### 💬 MCP Usage
 
 Transform your AI into a knowledge powerhouse! Here's how to use revect's MCP features:
