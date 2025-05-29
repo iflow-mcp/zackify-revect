@@ -3,5 +3,13 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "bun install"
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW"
+  ],
+  "mounts": [
+    "source=claude-code-bashhistory,target=/commandhistory,type=volume",
+    "source=claude-code-config,target=/home/node/.claude,type=volume"
+  ],
+  "postCreateCommand": "bun install && sudo /usr/local/bin/init-firewall.sh"
 }
