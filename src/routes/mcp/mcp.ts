@@ -153,9 +153,9 @@ const tools = (server: McpServer, methods: Methods) => {
   server.tool(
     "setContext",
     "Store context information with a specific key for later retrieval",
-    { 
+    {
       key: z.string().describe("The key to store the context under"),
-      message: z.string().describe("The context message to store")
+      message: z.string().describe("The context message to store"),
     },
     async ({ key, message }) => {
       try {
@@ -193,8 +193,8 @@ const tools = (server: McpServer, methods: Methods) => {
   server.tool(
     "getContext",
     "Retrieve context information by its key",
-    { 
-      key: z.string().describe("The key to retrieve the context for")
+    {
+      key: z.string().describe("The key to retrieve the context for"),
     },
     async ({ key }) => {
       try {
@@ -210,7 +210,7 @@ const tools = (server: McpServer, methods: Methods) => {
           content: [
             {
               type: "text",
-              text: `Context for key '${result.context.key}': ${result.context.message}`,
+              text: `${result.context.message}`,
             },
           ],
         };
