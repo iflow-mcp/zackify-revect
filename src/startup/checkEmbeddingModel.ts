@@ -1,4 +1,4 @@
-import { getMetadataValue } from "../database/metadata";
+import { getMetadataValue, metadataTableExists } from "../database/metadata";
 import { reembedAllDocuments } from "../database/reembedding";
 
 /**
@@ -11,6 +11,13 @@ export const checkEmbeddingModel = async (): Promise<void> => {
     
     if (!currentModel) {
       console.warn("Warning: AI_EMBEDDING_MODEL not set in environment variables");
+      return;
+    }
+    
+    // Check if this is a brand new database (no metadata table)
+    if (!metadataTableExists()) {
+      console.log("Brand new database detected, skipping re-embedding check");
+      console.log(`Will use embedding model: ${currentModel}${currentSize ? `, size: ${currentSize}` : ''}`);
       return;
     }
     

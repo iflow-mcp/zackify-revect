@@ -31,6 +31,7 @@ const setupMocks = (storedModel: string, storedSize: string) => {
 
   // Mock the metadata functions
   mock.module("../src/database/metadata", () => ({
+    metadataTableExists: mock(() => true), // Simulate existing database
     getMetadataValue: mock((key: string) => {
       if (key === "AI_EMBEDDING_MODEL") return storedModel;
       if (key === "AI_EMBEDDING_SIZE") return storedSize;
