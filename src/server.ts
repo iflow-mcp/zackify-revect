@@ -3,6 +3,8 @@ import { indexRoute, index } from "./routes/index/index";
 import { searchRoute, search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
 import { document, documentRoute } from "./routes/document/document";
+import { setContext, setContextRoute } from "./routes/context/setContext";
+import { getContext, getContextRoute } from "./routes/context/getContext";
 import { mcpRoute } from "./routes/mcp/mcp";
 import { checkEmbeddingModel } from "./startup/checkEmbeddingModel";
 
@@ -21,7 +23,9 @@ serve({
     "/index": checkForApiKey(indexRoute),
     "/search": checkForApiKey(searchRoute),
     "/document": checkForApiKey(documentRoute),
-    "/mcp": mcpRoute({ methods: { search, document, index } }),
+    "/set-context": checkForApiKey(setContextRoute),
+    "/get-context": checkForApiKey(getContextRoute),
+    "/mcp": mcpRoute({ methods: { search, document, index, setContext, getContext } }),
   },
   error(error) {
     console.error("Error processing request:", error);

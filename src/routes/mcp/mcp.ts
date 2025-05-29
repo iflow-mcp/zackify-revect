@@ -7,6 +7,8 @@ import type { SearchResponse } from "../search/search";
 import type { DocumentResponse } from "../document/document";
 import type { IndexResult } from "../index";
 import type { IndexProps } from "../index";
+import type { SetContextResult, SetContextProps } from "../context/setContext";
+import type { GetContextResult, GetContextProps } from "../context/getContext";
 
 // Create an MCP server
 const server = new McpServer({
@@ -18,6 +20,8 @@ type Methods = {
   search: (props: { text: string }) => Promise<SearchResponse>;
   document: (props: { id: number }) => Promise<DocumentResponse>;
   index: (props: IndexProps) => Promise<IndexResult>;
+  setContext: (props: SetContextProps) => Promise<SetContextResult>;
+  getContext: (props: GetContextProps) => Promise<GetContextResult>;
 };
 const tools = (server: McpServer, methods: Methods) => {
   // Search the index tool
@@ -138,6 +142,85 @@ const tools = (server: McpServer, methods: Methods) => {
             {
               type: "text",
               text: `Failed to index: ${(e as Error).message}`,
+            },
+          ],
+        };
+      }
+    }
+  );
+
+  // Set context tool
+  server.tool(
+    "setContext",
+    "Store context information with a specific key for later retrieval",
+    { 
+      key: z.string().describe("The key to store the context under"),
+      message: z.string().describe("The context message to store")
+    },
+    async ({ key, message }) => {
+      try {
+        const result = await methods.setContext({ key, message });
+
+        if ("error" in result) {
+          return {
+            content: [{ type: "text", text: result.error }],
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: result.message,
+            },
+          ],
+        };
+      } catch (e) {
+        console.error(e);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Failed to set context: ${(e as Error).message}`,
+            },
+          ],
+        };
+      }
+    }
+  );
+
+  // Get context tool
+  server.tool(
+    "getContext",
+    "Retrieve context information by its key",
+    { 
+      key: z.string().describe("The key to retrieve the context for")
+    },
+    async ({ key }) => {
+      try {
+        const result = await methods.getContext({ key });
+
+        if ("error" in result) {
+          return {
+            content: [{ type: "text", text: result.error }],
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Context for key '${result.context.key}': ${result.context.message}`,
+            },
+          ],
+        };
+      } catch (e) {
+        console.error(e);
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Failed to get context: ${(e as Error).message}`,
             },
           ],
         };
