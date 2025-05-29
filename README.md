@@ -142,6 +142,8 @@ This approach lets you ask your AI to recall from specific knowledge domains. Fo
 
 Connect revect to your favorite AI tools with the Model Context Protocol! 🤝
 
+> **Note:** revect provides both REST API and MCP service in one unified server, unlike many current MCP projects that require separate services or complex architectures.
+
 1. **Direct Connection** (for supported tools):
 
 ```
