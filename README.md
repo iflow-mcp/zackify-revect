@@ -14,6 +14,8 @@
 
 With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
+> 🔄 **Embedding Model Freedom**: Bring any embedding model, any size - from tiny efficient models to massive powerhouses. Swap between OpenAI, local Ollama models, or any OpenAI-compatible provider instantly. revect automatically re-embeds your entire database when you switch, ensuring zero data loss and maximum flexibility! 🪄
+
 - 🔍 **Semantic Superpowers** - Find and retrieve articles from your past with powerful semantic search
 - 💾 **Portable & Simple** - Store your data in a simple, portable SQLite file format
 - 💬 **AI Memory Bridge** - Instantly recall past conversations across different AI providers
