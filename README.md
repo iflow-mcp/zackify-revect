@@ -36,6 +36,7 @@ With MCP support, you can use revect as a private way to own your data and recal
   - [🐳 Docker + Local AI Setup](#-running-fully-local-with-docker--ollama--lm-studio)
   - [🧠 Running Multiple Containers](#-running-multiple-containers)
   - [🔌 MCP Configuration](#-mcp-setup)
+  - [🔌 Claude Code Setup](#-claude-code-setup)
   - [💬 Using MCP](#-mcp-usage)
   - [🔄 Switching Embedding Models](#-switching-embedding-models)
 - [☁️ Cloud Option](#️-cloud-option)
@@ -157,6 +158,23 @@ url: http://localhost:8000/mcp
   }
 }
 ```
+
+### 🔌 Claude Code Setup
+
+Once you have revect configured in Claude Desktop above, you can also add it to Claude Code for seamless access to your memory across all Claude interfaces.
+
+Add to Claude Code with this command:
+
+```bash
+claude mcp add-from-claude-desktop
+```
+
+Now you can recall information and persist information for quick access outside of Claude Code's hard coded memory files.
+
+**Benefits for multi-environment usage:**
+- 🐳 **Perfect for Docker environments** - Access your memory vault from Claude Code running in containers without duplicating configuration files
+- 🔄 **Unified MCP client management** - Avoid manually configuring MCP servers across multiple environments and development setups
+- 🌐 **Consistent memory access** - Whether you're in Claude Desktop, Claude Code, or other MCP-enabled tools, your memory vault stays connected
 
 ### 💬 MCP Usage
 
