@@ -45,8 +45,7 @@ describe("Index Route", () => {
     
     // Spy on database module to return our test db
     mock.module("../src/database/database", () => ({
-      db: db,
-      getDb: () => db
+      db: db
     }));
   });
 
