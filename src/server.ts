@@ -5,7 +5,7 @@ import { checkForApiKey } from "./shared/checkForApiKey";
 import { document, documentRoute } from "./routes/document/document";
 import { setContext, setContextRoute } from "./routes/context/setContext";
 import { getContext, getContextRoute } from "./routes/context/getContext";
-import { mcpRoute } from "./routes/mcp/mcp";
+import { mcpRoute, sseRoute, sseMessagesRoute } from "./routes/mcp/mcp";
 import { checkEmbeddingModel } from "./startup/checkEmbeddingModel";
 
 // Initialize server
@@ -26,6 +26,8 @@ serve({
     "/set-context": checkForApiKey(setContextRoute),
     "/get-context": checkForApiKey(getContextRoute),
     "/mcp": mcpRoute({ methods: { search, document, index, setContext, getContext } }),
+    "/sse": sseRoute({ methods: { search, document, index, setContext, getContext } }),
+    "/messages": sseMessagesRoute(),
   },
   error(error) {
     console.error("Error processing request:", error);
