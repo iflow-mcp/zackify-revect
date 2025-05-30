@@ -12,6 +12,12 @@
 
 **Re**call **vect**ors is your personal memory vault 🔒 - a self-hosted tool to persist and recall any information indefinitely. Never lose valuable knowledge again!
 
+## 🎯 What was this made for?
+
+Originally built for **recalling articles and blog posts** you've read in the past without remembering the exact title or content. You know you read something relevant, but can't quite recall the details? revect helps you find it with semantic search! 📚
+
+But we've realized it's incredibly useful for **shared and persistent memory for teams and individuals across many AI tools**. Whether you're working solo or collaborating with others, revect becomes your collective knowledge base that any AI can tap into. 🤝
+
 With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
 > 🔄 **Embedding Model Freedom**: Bring any embedding model, any size - from tiny efficient models to massive powerhouses. Swap between OpenAI, local Ollama models, or any OpenAI-compatible provider instantly. revect automatically re-embeds your entire database when you switch, ensuring zero data loss and maximum flexibility! 🪄
