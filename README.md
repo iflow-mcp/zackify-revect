@@ -52,6 +52,7 @@ It's our hosted platform with additional features and seamless synchronization.
 
 Get excited about what's coming next! 🎉
 
+- [ ] 🔍 **Advanced Search Types** - Date range filtering, exact match search, and other search refinements
 - [ ] 🌐 **Browser Extension** - Auto-save or right-click to save URLs and articles
 - [ ] 📝 **Obsidian Integration** - Pull in all content and search inside Obsidian
 - [ ] 🖥️ **Web Dashboard** - Search more deeply and interact better with your data
