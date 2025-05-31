@@ -16,7 +16,7 @@ export const setContext = async (body: SetContextProps): Promise<SetContextResul
 
   if (!success) {
     return {
-      error: "Validation failed",
+      error: error.issues?.[0]?.message || "Validation failed",
     };
   }
 
@@ -30,44 +30,33 @@ export const setContext = async (body: SetContextProps): Promise<SetContextResul
   }
 
   try {
-    // Check if context with this key already exists
-    const existingContext = db
-      .query("SELECT id FROM documents WHERE external_id = ? AND source = 'context'")
-      .get(data.key);
-
-    if (existingContext) {
-      // Update existing context
+    // Use a transaction for atomic operation
+    db.run("BEGIN TRANSACTION");
+    
+    try {
+      // Use JSON.stringify for embeddings array (more efficient than join)
+      const embeddingsStr = JSON.stringify(embeddings);
+      const metadata = JSON.stringify({ type: "context" });
+      
+      // Use INSERT OR REPLACE for simpler logic
       db.query(
         `
-          UPDATE documents 
-          SET 
-            text = ?,
-            embeddings = ?,
-            metadata = ?
-          WHERE external_id = ? AND source = 'context'
-        `
-      ).run(
-        data.message,
-        `[${embeddings.join(",")}]`,
-        JSON.stringify({ type: "context" }),
-        data.key
-      );
-    } else {
-      // Insert new context
-      db.query(
-        `
-          INSERT INTO documents (external_id, text, embeddings, source, metadata)
+          INSERT OR REPLACE INTO documents (external_id, text, embeddings, source, metadata)
           VALUES (?, ?, ?, 'context', ?)
         `
       ).run(
         data.key,
         data.message,
-        `[${embeddings.join(",")}]`,
-        JSON.stringify({ type: "context" })
+        embeddingsStr,
+        metadata
       );
+      
+      db.run("COMMIT");
+      return { message: "Context successfully set" };
+    } catch (e) {
+      db.run("ROLLBACK");
+      throw e;
     }
-
-    return { message: "Context successfully set" };
   } catch (e) {
     console.error("Error setting context:", e);
     return { error: "Failed to set context" };

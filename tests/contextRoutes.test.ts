@@ -12,7 +12,7 @@ import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL } from "../src/database/migrations";
 
 // Set test environment variables
-process.env.DATABASE_PATH = "******"; // In-memory database for tests
+process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -34,7 +34,7 @@ describe("Context Routes", () => {
 
   beforeAll(async () => {
     // Create fresh database
-    db = new Database("******");
+    db = new Database(":memory:");
     
     // Configure database
     db.exec("PRAGMA journal_mode = WAL;");
@@ -127,7 +127,7 @@ describe("Context Routes", () => {
 
     // Verify validation error
     expect(response.status).toBe(400);
-    expect(responseData).toHaveProperty("error", "Validation failed");
+    expect(responseData).toHaveProperty("error", "Key field is required");
   });
 
   test("should handle non-existent context key", async () => {

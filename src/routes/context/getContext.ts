@@ -14,7 +14,7 @@ export const getContext = async (body: GetContextProps): Promise<GetContextResul
 
   if (!success) {
     return {
-      error: "Validation failed",
+      error: error.issues?.[0]?.message || "Validation failed",
     };
   }
 

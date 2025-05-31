@@ -12,10 +12,19 @@
 
 **Re**call **vect**ors is your personal memory vault 🔒 - a self-hosted tool to persist and recall any information indefinitely. Never lose valuable knowledge again!
 
+## 🎯 What was this made for?
+
+Originally built for **recalling articles and blog posts** you've read in the past without remembering the exact title or content. You know you read something relevant, but can't quite recall the details? revect helps you find it with semantic search! 📚
+
+But we've realized it's incredibly useful for **shared and persistent memory for teams and individuals across many AI tools**. Whether you're working solo or collaborating with others, revect becomes your collective knowledge base that any AI can tap into. 🤝
+
 With MCP support, you can use revect as a private way to own your data and recall it seamlessly in any AI system. Your data, your control. 🛡️
 
+> 🔄 **Embedding Model Freedom**: Bring any embedding model, any size - from tiny efficient models to massive powerhouses. Swap between OpenAI, local Ollama models, or any OpenAI-compatible provider instantly. revect automatically re-embeds your entire database when you switch, ensuring zero data loss and maximum flexibility! 🪄
+
+- 🏗️ **Single Service Simplicity** - Just one container vs complex multi-service alternatives - simpler architecture, easier setup
+- 💾 **Portable & Browsable** - Store data in SQLite that you can browse anytime with any SQLite viewer
 - 🔍 **Semantic Superpowers** - Find and retrieve articles from your past with powerful semantic search
-- 💾 **Portable & Simple** - Store your data in a simple, portable SQLite file format
 - 💬 **AI Memory Bridge** - Instantly recall past conversations across different AI providers
 - 🔒 **Privacy First** - Enjoy complete privacy with fully local, offline operation
 - 🔌 **Extensible Ecosystem** - Connect with expanding web interfaces and third-party integrations
@@ -36,6 +45,7 @@ With MCP support, you can use revect as a private way to own your data and recal
   - [🐳 Docker + Local AI Setup](#-running-fully-local-with-docker--ollama--lm-studio)
   - [🧠 Running Multiple Containers](#-running-multiple-containers)
   - [🔌 MCP Configuration](#-mcp-setup)
+  - [🔌 Claude Code Setup](#-claude-code-setup)
   - [💬 Using MCP](#-mcp-usage)
   - [🔄 Switching Embedding Models](#-switching-embedding-models)
 - [☁️ Cloud Option](#️-cloud-option)
@@ -48,6 +58,7 @@ It's our hosted platform with additional features and seamless synchronization.
 
 Get excited about what's coming next! 🎉
 
+- [ ] 🔍 **Advanced Search Types** - Date range filtering, exact match search, and other search refinements
 - [ ] 🌐 **Browser Extension** - Auto-save or right-click to save URLs and articles
 - [ ] 📝 **Obsidian Integration** - Pull in all content and search inside Obsidian
 - [ ] 🖥️ **Web Dashboard** - Search more deeply and interact better with your data
@@ -138,6 +149,8 @@ This approach lets you ask your AI to recall from specific knowledge domains. Fo
 
 Connect revect to your favorite AI tools with the Model Context Protocol! 🤝
 
+> **Note:** revect provides both REST API and MCP service in one unified server, unlike many current MCP projects that require separate services or complex architectures.
+
 1. **Direct Connection** (for supported tools):
 
 ```
@@ -157,6 +170,23 @@ url: http://localhost:8000/mcp
   }
 }
 ```
+
+### 🔌 Claude Code Setup
+
+Once you have revect configured in Claude Desktop above, you can also add it to Claude Code for seamless access to your memory across all Claude interfaces.
+
+Add to Claude Code with this command:
+
+```bash
+claude mcp add-from-claude-desktop
+```
+
+Now you can recall information and persist information for quick access outside of Claude Code's hard coded memory files.
+
+**Benefits for multi-environment usage:**
+- 🐳 **Perfect for Docker environments** - Access your memory vault from Claude Code running in containers without duplicating configuration files
+- 🔄 **Unified MCP client management** - Avoid manually configuring MCP servers across multiple environments and development setups
+- 🌐 **Consistent memory access** - Whether you're in Claude Desktop, Claude Code, or other MCP-enabled tools, your memory vault stays connected
 
 ### 💬 MCP Usage
 

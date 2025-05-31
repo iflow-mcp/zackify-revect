@@ -13,7 +13,7 @@ import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
 
 // Set test environment variables
-process.env.DATABASE_PATH = "******"; // In-memory database for tests
+process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -35,13 +35,24 @@ describe("Search Route", () => {
 
   beforeAll(async () => {
     // Create fresh database
-    db = new Database("******");
+    db = new Database(":memory:");
     
     // Configure database
     db.exec("PRAGMA journal_mode = WAL;");
     sqliteVec.load(db);
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
+    
+    // Create metadata table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
     
     // Spy on database module to return our test db
     mock.module("../src/database/database", () => ({
