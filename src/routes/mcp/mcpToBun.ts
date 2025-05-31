@@ -61,6 +61,31 @@ export class BunResponseAdapter extends EventEmitter {
 
   write(chunk: any): boolean {
     this._body += chunk;
+    
+    // Check if this is a complete SSE event with JSON-RPC response
+    // The MCP SDK sends SSE events in the format: "event: message\ndata: {json}\n\n"
+    if (this._body.includes('event: message\ndata: ') && this._body.endsWith('\n\n')) {
+      // Extract the JSON part to check if it's complete
+      const dataMatch = this._body.match(/data: (.+)\n\n$/);
+      if (dataMatch && dataMatch[1]) {
+        try {
+          const json = JSON.parse(dataMatch[1]);
+          // Check if this is a complete JSON-RPC response
+          if (json.jsonrpc && json.id !== undefined && (json.result !== undefined || json.error !== undefined)) {
+            // The MCP SDK has written a complete response but isn't ending it
+            // This is a workaround for the SDK bug where it waits for all batch responses
+            process.nextTick(() => {
+              if (!this._ended) {
+                this.end();
+              }
+            });
+          }
+        } catch (e) {
+          // Not valid JSON yet, keep accumulating
+        }
+      }
+    }
+    
     return true;
   }
 
@@ -72,7 +97,6 @@ export class BunResponseAdapter extends EventEmitter {
     encodingOrCb?: BufferEncoding | (() => void),
     cb?: () => void
   ): this {
-    console.log('BunResponseAdapter.end() called');
     let chunk: any;
     let callback: (() => void) | undefined;
 
@@ -93,11 +117,21 @@ export class BunResponseAdapter extends EventEmitter {
 
     if (!this._ended) {
       this._ended = true;
-
-      console.log('Creating response with status:', this._statusCode, 'body length:', this._body.length);
+      
+      // If this is an SSE response, extract the JSON data from the SSE format
+      let responseBody = this._body;
+      if (this._headers['Content-Type'] === 'text/event-stream' && this._body.includes('event: message\ndata: ')) {
+        // Parse SSE format to extract JSON
+        const match = this._body.match(/data: (.+?)(?:\n\n|$)/);
+        if (match && match[1]) {
+          responseBody = match[1];
+          // Update content type to JSON since we're extracting the JSON data
+          this._headers['Content-Type'] = 'application/json';
+        }
+      }
       
       // Create the Bun Response
-      const response = new Response(this._body, {
+      const response = new Response(responseBody, {
         status: this._statusCode,
         headers: this._headers,
       });
@@ -115,6 +149,18 @@ export class BunResponseAdapter extends EventEmitter {
     }
 
     return this;
+  }
+  
+  // Add method to ensure response is sent
+  ensureResponseSent(): void {
+    if (!this._ended) {
+      this.end();
+    }
+  }
+  
+  // Add method to check body length
+  getBodyLength(): number {
+    return this._body.length;
   }
 }
 
