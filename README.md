@@ -1,7 +1,7 @@
 # revect 🚀 ✨ 🧠
 
 <!-- Demo video placeholder - Coming soon! -->
-<p align="center">🎬 Demo video coming soon! 🎬</p>
+<p align="center">🎬 Demo video coming soon! See <a href="#-examples">Examples</a> below for usage screenshots. 🎬</p>
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/zachrebuild/revect.io)](https://hub.docker.com/r/zachrebuild/revect.io)
 [![GitHub Issues](https://img.shields.io/github/issues/zackify/revect)](https://github.com/zackify/revect/issues)
@@ -50,6 +50,7 @@ With MCP support, you can use revect as a private way to own your data and recal
   - [🔄 Switching Embedding Models](#-switching-embedding-models)
 - [☁️ Cloud Option](#️-cloud-option)
 - [🤝 Contributing](#-contributing)
+- [📖 Examples](#-examples)
 
 If you wish to support the project or access your data across multiple devices, we recommend revect cloud (coming soon) ☁️.
 It's our hosted platform with additional features and seamless synchronization.
@@ -246,6 +247,26 @@ Coming soon! Our hosted platform will offer:
 ## 🤝 Contributing
 
 We'd love your help making revect even better! Check out our [issues page](https://github.com/zackify/revect/issues) to get started.
+
+## 📖 Examples
+
+Here are some visual examples of how to use revect with popular AI tools:
+
+### Adding the server to Cline
+
+<img src="https://github.com/user-attachments/assets/c0c097b4-a386-4a6b-a4c6-5dbbbabbe084" alt="Adding revect server to Cline MCP configuration">
+
+### Setting context on the fly in Cline
+
+<img src="https://github.com/user-attachments/assets/ec7b3670-abb1-4291-8955-b2995bb1578a" alt="Setting context on the fly in Cline">
+
+### Retrieving context information in Claude Desktop
+
+<img src="https://github.com/user-attachments/assets/8a3cdb59-c4d3-4ca4-a668-f9c8821083f5" alt="Retrieving context information in Claude Desktop">
+
+### Using context in Cline later on
+
+<img src="https://github.com/user-attachments/assets/3fb861b9-85d1-422c-a1cb-f44bc0e63180" alt="Using context in Cline later on">
 
 ---
 
