@@ -252,21 +252,23 @@ We'd love your help making revect even better! Check out our [issues page](https
 
 Here are some visual examples of how to use revect with popular AI tools:
 
-### Adding the server to Cline
+> **Privacy Note:** The Cline examples below demonstrate usage with devstral (Mistral's local AI model), showcasing fully private, end-to-end operation of revect without any external API calls.
 
-<img src="https://github.com/user-attachments/assets/c0c097b4-a386-4a6b-a4c6-5dbbbabbe084" alt="Adding revect server to Cline MCP configuration">
+### Adding the server to Cline (with devstral for fully private usage)
 
-### Setting context on the fly in Cline
+<img src="https://github.com/user-attachments/assets/c0c097b4-a386-4a6b-a4c6-5dbbbabbe084" alt="Adding revect server to Cline MCP configuration with devstral">
 
-<img src="https://github.com/user-attachments/assets/ec7b3670-abb1-4291-8955-b2995bb1578a" alt="Setting context on the fly in Cline">
+### Setting context on the fly in Cline (using devstral locally)
+
+<img src="https://github.com/user-attachments/assets/ec7b3670-abb1-4291-8955-b2995bb1578a" alt="Setting context on the fly in Cline with devstral for private usage">
 
 ### Retrieving context information in Claude Desktop
 
 <img src="https://github.com/user-attachments/assets/8a3cdb59-c4d3-4ca4-a668-f9c8821083f5" alt="Retrieving context information in Claude Desktop">
 
-### Using context in Cline later on
+### Using context in Cline later on (fully private with devstral)
 
-<img src="https://github.com/user-attachments/assets/3fb861b9-85d1-422c-a1cb-f44bc0e63180" alt="Using context in Cline later on">
+<img src="https://github.com/user-attachments/assets/3fb861b9-85d1-422c-a1cb-f44bc0e63180" alt="Using context in Cline later on with devstral for end-to-end privacy">
 
 ---
 
