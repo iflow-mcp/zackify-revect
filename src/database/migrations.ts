@@ -98,6 +98,18 @@ export const migrations: Migration[] = [
       return db.exec(`DROP TABLE metadata;`);
     },
   },
+  {
+    name: "create_external_id_source_index",
+    up: () => {
+      return db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_documents_external_id_source 
+        ON documents(external_id, source);
+      `);
+    },
+    down: () => {
+      return db.exec(`DROP INDEX IF EXISTS idx_documents_external_id_source;`);
+    },
+  },
 
   // Add more migrations here
 ];

@@ -7,6 +7,7 @@ export class BunResponseAdapter extends EventEmitter {
   private _headers: Record<string, string> = {};
   private _body: string = "";
   private _ended = false;
+  headersSent = false;
 
   constructor(private resolve: (response: Response) => void) {
     super();
@@ -27,6 +28,7 @@ export class BunResponseAdapter extends EventEmitter {
     headers?: Record<string, string | string[]>
   ): this {
     this._statusCode = statusCode;
+    this.headersSent = true;
 
     let actualHeaders: Record<string, string | string[]> | undefined;
     if (typeof statusMessageOrHeaders === "object") {
@@ -70,6 +72,7 @@ export class BunResponseAdapter extends EventEmitter {
     encodingOrCb?: BufferEncoding | (() => void),
     cb?: () => void
   ): this {
+    console.log('BunResponseAdapter.end() called');
     let chunk: any;
     let callback: (() => void) | undefined;
 
@@ -91,6 +94,8 @@ export class BunResponseAdapter extends EventEmitter {
     if (!this._ended) {
       this._ended = true;
 
+      console.log('Creating response with status:', this._statusCode, 'body length:', this._body.length);
+      
       // Create the Bun Response
       const response = new Response(this._body, {
         status: this._statusCode,

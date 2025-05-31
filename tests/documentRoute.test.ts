@@ -45,8 +45,10 @@ describe("Document Route", () => {
     sqliteVec.load(db);
     db.exec(createDocumentsTableSQL("1536"));
     
-    // Set the global test database so the db proxy will use it
-    globalThis.testDb = db;
+    // Spy on database module to return our test db
+    mock.module("../src/database/database", () => ({
+      db: db
+    }));
   });
   
   // Insert test data before each test
@@ -73,7 +75,6 @@ describe("Document Route", () => {
   // Clean up after all tests
   afterAll(() => {
     db.close();
-    delete globalThis.testDb;
   });
   
   test("should retrieve document by id", async () => {

@@ -24,7 +24,7 @@ export const reembedAllDocuments = async (): Promise<void> => {
     console.log("Updating database schema to accommodate new embedding size...");
     
     // Alter documents table to handle potential changes in embedding dimensions
-    await db.exec(`
+    db.exec(`
       PRAGMA foreign_keys=off;
       BEGIN TRANSACTION;
       
@@ -33,10 +33,12 @@ export const reembedAllDocuments = async (): Promise<void> => {
       
       -- Drop original table
       DROP TABLE documents;
-      
-      -- Recreate table with updated schema and embedding size
-      ${createDocumentsTableSQL(embeddingSize)}
-      
+    `);
+    
+    // Recreate table with updated schema and embedding size
+    db.exec(createDocumentsTableSQL(embeddingSize));
+    
+    db.exec(`
       -- Copy data back
       INSERT INTO documents (id, external_id, text, metadata, source, created_at)
       SELECT id, external_id, text, metadata, source, created_at FROM temp_documents;
@@ -49,7 +51,7 @@ export const reembedAllDocuments = async (): Promise<void> => {
     `);
     
     // Similar process for document_chunks table
-    await db.exec(`
+    db.exec(`
       PRAGMA foreign_keys=off;
       BEGIN TRANSACTION;
       
@@ -58,10 +60,12 @@ export const reembedAllDocuments = async (): Promise<void> => {
       
       -- Drop original table
       DROP TABLE document_chunks;
-      
-      -- Recreate table with updated schema and embedding size
-      ${createDocumentChunksTableSQL(embeddingSize)}
-      
+    `);
+    
+    // Recreate table with updated schema and embedding size
+    db.exec(createDocumentChunksTableSQL(embeddingSize));
+    
+    db.exec(`
       -- Copy data back
       INSERT INTO document_chunks (id, document_id, text, created_at)
       SELECT id, document_id, text, created_at FROM temp_document_chunks;
@@ -76,7 +80,7 @@ export const reembedAllDocuments = async (): Promise<void> => {
     console.log("Database schema updated successfully");
     
     // Prepare database for batch operations
-    await db.run("BEGIN TRANSACTION");
+    db.exec("BEGIN TRANSACTION");
 
     // Get all documents
     const documents = db.query("SELECT id, text FROM documents").all() as { id: number; text: string }[];
@@ -105,8 +109,8 @@ export const reembedAllDocuments = async (): Promise<void> => {
             
             // Commit in batches to avoid holding transaction too long
             if (processedDocs % 100 === 0 && processedDocs !== documents.length) {
-              await db.run("COMMIT");
-              await db.run("BEGIN TRANSACTION");
+              db.exec("COMMIT");
+              db.exec("BEGIN TRANSACTION");
             }
           }
         }
@@ -116,10 +120,10 @@ export const reembedAllDocuments = async (): Promise<void> => {
     }
     
     // Commit document changes
-    await db.run("COMMIT");
+    db.exec("COMMIT");
     
     // Start new transaction for chunks
-    await db.run("BEGIN TRANSACTION");
+    db.exec("BEGIN TRANSACTION");
     
     // Get all document chunks
     const chunks = db.query("SELECT id, document_id, text FROM document_chunks").all() as { 
@@ -153,8 +157,8 @@ export const reembedAllDocuments = async (): Promise<void> => {
             
             // Commit in batches to avoid holding transaction too long
             if (processedChunks % 200 === 0 && processedChunks !== chunks.length) {
-              await db.run("COMMIT");
-              await db.run("BEGIN TRANSACTION");
+              db.exec("COMMIT");
+              db.exec("BEGIN TRANSACTION");
             }
           }
         }
@@ -168,13 +172,13 @@ export const reembedAllDocuments = async (): Promise<void> => {
     setMetadataValue("AI_EMBEDDING_SIZE", embeddingSize || "");
     
     // Commit chunk changes
-    await db.run("COMMIT");
+    db.exec("COMMIT");
     
     console.log("Re-embedding process completed successfully");
   } catch (error) {
     // Ensure transaction is rolled back if an error occurs
     try {
-      await db.run("ROLLBACK");
+      db.exec("ROLLBACK");
     } catch (rollbackError) {
       console.error("Error during rollback:", rollbackError);
     }

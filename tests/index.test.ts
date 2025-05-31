@@ -46,9 +46,22 @@ describe("Index and Search routes", () => {
     sqliteVec.load(db);
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
+    
+    // Create metadata table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
-    // Set the global test database so the db proxy will use it
-    globalThis.testDb = db;
+    // Spy on database module to return our test db
+    mock.module("../src/database/database", () => ({
+      db: db
+    }));
   });
 
   beforeEach(async () => {
@@ -59,7 +72,6 @@ describe("Index and Search routes", () => {
 
   afterAll(() => {
     db.close();
-    delete globalThis.testDb;
   });
 
   test("should store short text as a single document with one chunk", async () => {

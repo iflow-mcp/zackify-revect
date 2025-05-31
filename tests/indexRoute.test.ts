@@ -43,8 +43,21 @@ describe("Index Route", () => {
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
     
-    // Set the global test database so the db proxy will use it
-    globalThis.testDb = db;
+    // Create metadata table
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS metadata (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE NOT NULL,
+        value TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    
+    // Spy on database module to return our test db
+    mock.module("../src/database/database", () => ({
+      db: db
+    }));
   });
 
   beforeEach(() => {
@@ -58,7 +71,6 @@ describe("Index Route", () => {
 
   afterAll(() => {
     db.close();
-    delete globalThis.testDb;
   });
 
   test("should index document and call generateEmbeddings with correct parameters", async () => {
