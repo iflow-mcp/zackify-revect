@@ -79,7 +79,7 @@ Get up and running in minutes with your own private AI memory system! 🏃‍♂
 
 ```bash
 docker run \
-  -p 8000:3000 \
+  -p 8000:8000 \
   -v ~/Documents/revect:/app/data \
   -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
   -e AI_API_KEY="key" \
@@ -104,7 +104,7 @@ To run multiple containers, use different ports and volume mounts:
 ```
 # Container 1: General Knowledge
 docker run \
-  -p 8000:3000 \
+  -p 8000:8000 \
   -v ~/Documents/revect-general:/app/data \
   -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
   -e AI_API_KEY="key" \
@@ -117,7 +117,7 @@ docker run \
 
 # Container 2: Coding Knowledge
 docker run \
-  -p 8001:3000 \
+  -p 8001:8000 \
   -v ~/Documents/revect-coding:/app/data \
   -e AI_BASE_URL="http://host.docker.internal:11434/v1" \
   -e AI_API_KEY="key" \

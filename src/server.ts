@@ -17,7 +17,7 @@ console.log("Embedding model check completed");
 
 // Start the server
 serve({
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 8000,
   idleTimeout: 0, // 0 means infinite timeout - MCP connections may have long periods of inactivity
   routes: {
     "/index": checkForApiKey(indexRoute),
@@ -40,4 +40,4 @@ serve({
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   },
 });
-console.log(`revect.io now running on ${process.env.PORT || 3000}`);
+console.log(`revect.io now running on ${process.env.PORT || 8000}`);
