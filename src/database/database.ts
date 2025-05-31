@@ -36,6 +36,13 @@ export function getDb(): Database {
 export const db = new Proxy({} as Database, {
   get: function(target, prop) {
     const currentDb = getDb();
-    return currentDb[prop as keyof Database];
+    const value = currentDb[prop as keyof Database];
+    
+    // If it's a function, bind it to the correct database instance
+    if (typeof value === 'function') {
+      return value.bind(currentDb);
+    }
+    
+    return value;
   }
 });

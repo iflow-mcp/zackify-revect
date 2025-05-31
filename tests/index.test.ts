@@ -17,7 +17,7 @@ import {
 import { indexRoute } from "../src/routes/index/index";
 
 // Set test environment variables
-process.env.DATABASE_PATH = "******"; // In-memory database for tests
+process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -39,7 +39,7 @@ describe("Index and Search routes", () => {
 
   beforeAll(async () => {
     // Create fresh database
-    db = new Database("******");
+    db = new Database(":memory:");
 
     // Configure database
     db.exec("PRAGMA journal_mode = WAL;");
@@ -47,11 +47,8 @@ describe("Index and Search routes", () => {
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
 
-    // Spy on database module to return our test db
-    mock.module("../src/database/database", () => ({
-      db: db,
-      getDb: () => db,
-    }));
+    // Set the global test database so the db proxy will use it
+    globalThis.testDb = db;
   });
 
   beforeEach(async () => {
@@ -62,6 +59,7 @@ describe("Index and Search routes", () => {
 
   afterAll(() => {
     db.close();
+    delete globalThis.testDb;
   });
 
   test("should store short text as a single document with one chunk", async () => {

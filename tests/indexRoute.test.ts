@@ -13,7 +13,7 @@ import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
 
 // Set test environment variables
-process.env.DATABASE_PATH = "******"; // In-memory database for tests
+process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
 process.env.AI_API_KEY = "test-key";
 process.env.AI_EMBEDDING_MODEL = "test-model";
 
@@ -35,7 +35,7 @@ describe("Index Route", () => {
 
   beforeAll(async () => {
     // Create fresh database
-    db = new Database("******");
+    db = new Database(":memory:");
     
     // Configure database
     db.exec("PRAGMA journal_mode = WAL;");
@@ -43,11 +43,8 @@ describe("Index Route", () => {
     db.exec(createDocumentsTableSQL("1536"));
     db.exec(createDocumentChunksTableSQL("1536"));
     
-    // Spy on database module to return our test db
-    mock.module("../src/database/database", () => ({
-      db: db,
-      getDb: () => db
-    }));
+    // Set the global test database so the db proxy will use it
+    globalThis.testDb = db;
   });
 
   beforeEach(() => {
@@ -61,6 +58,7 @@ describe("Index Route", () => {
 
   afterAll(() => {
     db.close();
+    delete globalThis.testDb;
   });
 
   test("should index document and call generateEmbeddings with correct parameters", async () => {
