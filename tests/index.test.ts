@@ -48,7 +48,7 @@ describe("Index and Search routes", () => {
     db.exec(createDocumentChunksTableSQL("1536"));
 
     // Set the global test database so the db proxy will use it
-    globalThis.testDb = db;
+    (globalThis as any).testDb = db;
   });
 
   beforeEach(async () => {
@@ -59,7 +59,7 @@ describe("Index and Search routes", () => {
 
   afterAll(() => {
     db.close();
-    delete globalThis.testDb;
+    delete (globalThis as any).testDb;
   });
 
   test("should store short text as a single document with one chunk", async () => {
