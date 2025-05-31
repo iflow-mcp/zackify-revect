@@ -189,7 +189,7 @@ const tools = (server: McpServer, methods: Methods) => {
           ],
         };
       } catch (e) {
-        console.error(e);
+        console.error("MCP setContext tool error:", e);
         return {
           content: [
             {
@@ -353,10 +353,33 @@ export const mcpRoute = ({ methods }: { methods: Methods }) => {
 
         console.log('Handling request with transport, sessionId:', transport.sessionId);
         
-        // Handle the request - pass parsedBody as third parameter
-        await transport.handleRequest(reqAdapter as any, resAdapter as any, parsedBody);
+        // Override the transport's send method temporarily to ensure responses are sent immediately
+        const originalSend = transport.send;
         
-        console.log('Request handled');
+        transport.send = async function(message: any, options?: any) {
+          // Call the original send method
+          const result = await originalSend.call(this, message, options);
+          
+          // For responses (not requests or notifications), ensure the response is sent
+          if (message && (message.result !== undefined || message.error !== undefined)) {
+            // Use setImmediate to allow the SDK to finish its processing
+            setImmediate(() => {
+              resAdapter.ensureResponseSent();
+            });
+          }
+          
+          return result;
+        };
+        
+        try {
+          // Handle the request - pass parsedBody as third parameter
+          await transport.handleRequest(reqAdapter as any, resAdapter as any, parsedBody);
+          
+          console.log('Request handled');
+        } finally {
+          // Restore original send method
+          transport.send = originalSend;
+        }
       } catch (error) {
         console.error('Error handling MCP request:', error);
         const errorResponse = new Response(
