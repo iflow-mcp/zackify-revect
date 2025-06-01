@@ -254,6 +254,8 @@ Here are some visual examples of how to use revect with popular AI tools:
 
 > **Privacy Note:** The Cline examples below demonstrate usage with devstral (Mistral's local AI model), showcasing fully private, end-to-end operation of revect without any external API calls.
 
+Cline and some other tools do not support the /mcp route, we added the old /sse route for these clients. 
+
 ### Adding the server to Cline (with devstral for fully private usage)
 
 <img src="https://github.com/user-attachments/assets/c0c097b4-a386-4a6b-a4c6-5dbbbabbe084" alt="Adding revect server to Cline MCP configuration with devstral">
