@@ -55,6 +55,8 @@ With MCP support, you can use revect as a private way to own your data and recal
 If you wish to support the project or access your data across multiple devices, we recommend revect cloud (coming soon) ☁️.
 It's our hosted platform with additional features and seamless synchronization.
 
+**📬 [Sign up for my newsletter at zach.codes](https://zach.codes) to be notified of the cloud launch!**
+
 ## 🔮 Upcoming Features
 
 Get excited about what's coming next! 🎉
@@ -243,6 +245,8 @@ Coming soon! Our hosted platform will offer:
 - 🚀 Enhanced performance
 - 🛡️ Managed backups
 - ✨ Premium features
+
+**📬 [Sign up for my newsletter at zach.codes](https://zach.codes) to be notified of the cloud launch!**
 
 ## 🤝 Contributing
 
