@@ -40,6 +40,55 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Get previous release tag
+        id: prev_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            // Find current release in the list
+            const currentReleaseTag = context.payload.release.tag_name;
+            const currentIndex = releases.data.findIndex(r => r.tag_name === currentReleaseTag);
+            
+            // Get previous release if it exists
+            if (currentIndex >= 0 && releases.data.length > currentIndex + 1) {
+              const prevRelease = releases.data[currentIndex + 1];
+              console.log(`Previous release: ${prevRelease.tag_name}`);
+              return prevRelease.tag_name;
+            } else {
+              console.log('No previous release found');
+              return '';
+            }
+
+      - name: Backwards compatibility check
+        if: steps.prev_release.outputs.result != ''
+        run: |
+          # Create directory for database
+          mkdir -p ./data
+          
+          # Pull previous image
+          PREV_TAG=${{ steps.prev_release.outputs.result }}
+          docker pull ${{ env.DOCKER_IMAGE }}:${PREV_TAG}
+          
+          # Run migrations on previous version
+          echo "Running migrations on previous version ${PREV_TAG}"
+          docker run --name prev-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:${PREV_TAG} bun run /app/src/database/migrations.ts up
+          
+          # Build current version for testing (only amd64 for testing)
+          docker build -t ${{ env.DOCKER_IMAGE }}:test .
+          
+          # Test migrations with the new version
+          echo "Testing migrations on new version"
+          docker run --name new-revect -v $(pwd)/data:/app/data ${{ env.DOCKER_IMAGE }}:test bun run /app/src/database/migrations.ts up
+          
+          # Cleanup
+          docker rm prev-revect new-revect
+          rm -rf ./data
+
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
