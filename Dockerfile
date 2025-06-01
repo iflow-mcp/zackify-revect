@@ -10,7 +10,7 @@ COPY src src
 COPY package.json bun.lock ./
 
 # Install dependencies
-RUN bun install
+RUN bun install --production
 
 # Expose the port the server will run on (change as needed)
 EXPOSE 3000
