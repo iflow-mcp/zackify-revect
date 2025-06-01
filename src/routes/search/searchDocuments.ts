@@ -7,6 +7,7 @@ export type SearchDocumentsProps = {
 export type SearchDocumentResponse = {
   id: number;
   text: string;
+  source: string;
   distance: number;
   metadata: Record<string, any>;
   document_id: number;

@@ -11,6 +11,7 @@ import {
 import Database from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
+import { createMockRequest, createMockResponse, createMockNext } from "./helpers/mockExpress";
 
 // Set test environment variables
 process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
@@ -81,24 +82,21 @@ describe("Index Route", () => {
     const { indexRoute } = await import("../src/routes/index/index");
     
     // Create a request with sample data
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         source: sampleSource,
         text: sampleText,
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the request
-    const response = await indexRoute(request);
-    const responseData = await response.json();
+    await indexRoute(req, res, next);
 
     // Verify response
-    expect(response.status).toBe(200);
-    expect(responseData).toHaveProperty("message", "Data successfully indexed");
+    expect((res as any)._status).toBe(200);
+    expect((res as any)._json).toHaveProperty("message", "Data successfully indexed");
 
     // Verify that generateEmbeddings was called with the correct text
     expect(generateEmbeddingsMock.mock.calls.length).toBeGreaterThan(0);

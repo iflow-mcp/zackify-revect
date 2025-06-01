@@ -1,11 +1,12 @@
-import { serve } from "bun";
+import express from "express";
+import cors from "cors";
 import { indexRoute, index } from "./routes/index/index";
 import { searchRoute, search } from "./routes/search/search";
 import { checkForApiKey } from "./shared/checkForApiKey";
 import { document, documentRoute } from "./routes/document/document";
 import { setContext, setContextRoute } from "./routes/context/setContext";
 import { getContext, getContextRoute } from "./routes/context/getContext";
-import { mcpRoute, sseRoute, sseMessagesRoute } from "./routes/mcp/mcp";
+import { mcpRoute } from "./routes/mcp/mcp";
 import { checkEmbeddingModel } from "./startup/checkEmbeddingModel";
 
 // Initialize server
@@ -15,29 +16,35 @@ console.log("Checking embedding model configuration...");
 await checkEmbeddingModel();
 console.log("Embedding model check completed");
 
-// Start the server
-serve({
-  port: process.env.PORT || 8000,
-  idleTimeout: 0, // 0 means infinite timeout - MCP connections may have long periods of inactivity
-  routes: {
-    "/index": checkForApiKey(indexRoute),
-    "/search": checkForApiKey(searchRoute),
-    "/document": checkForApiKey(documentRoute),
-    "/set-context": checkForApiKey(setContextRoute),
-    "/get-context": checkForApiKey(getContextRoute),
-    "/mcp": mcpRoute({ methods: { search, document, index, setContext, getContext } }),
-    "/sse": sseRoute({ methods: { search, document, index, setContext, getContext } }),
-    "/messages": sseMessagesRoute(),
-  },
-  error(error) {
-    console.error("Error processing request:", error);
+// Create Express app
+const app = express();
+const port = process.env.PORT || 8000;
 
-    if (error.message.includes("Unexpected end of JSON input"))
-      return Response.json(
-        { error: "Must post data to this endpoint" },
-        { status: 400 }
-      );
-    return Response.json({ error: "Internal Server Error" }, { status: 500 });
-  },
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.post("/index", checkForApiKey(indexRoute));
+app.post("/search", checkForApiKey(searchRoute));
+app.post("/document", checkForApiKey(documentRoute));
+app.post("/set-context", checkForApiKey(setContextRoute));
+app.post("/get-context", checkForApiKey(getContextRoute));
+app.post("/mcp", mcpRoute({ methods: { search, document, index, setContext, getContext } }));
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+  console.error("Error processing request:", err);
+  
+  if (err.message?.includes("Unexpected end of JSON input")) {
+    res.status(400).json({ error: "Must post data to this endpoint" });
+    return;
+  }
+  
+  res.status(500).json({ error: "Internal Server Error" });
 });
-console.log(`revect.io now running on ${process.env.PORT || 8000}`);
+
+// Start server
+app.listen(port, () => {
+  console.log(`revect.io now running on ${port}`);
+});

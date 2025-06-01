@@ -10,6 +10,7 @@ import {
 import Database from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL } from "../src/database/migrations";
+import { createMockRequest, createMockResponse, createMockNext } from "./helpers/mockExpress";
 
 // Set test environment variables
 process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
@@ -68,87 +69,75 @@ describe("Context Routes", () => {
     const testMessage = "This is a test context message";
     
     // Set context
-    const setRequest = new Request("http://localhost/set-context", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const setReq = createMockRequest({
+      body: {
         key: testKey,
         message: testMessage,
-      }),
+      },
     });
+    const setRes = createMockResponse();
+    const setNext = createMockNext();
 
-    const setResponse = await setContextRoute(setRequest);
-    const setResponseData = await setResponse.json();
+    await setContextRoute(setReq, setRes, setNext);
 
     // Verify set response
-    expect(setResponse.status).toBe(200);
-    expect(setResponseData).toHaveProperty("message", "Context successfully set");
+    expect((setRes as any)._status).toBe(200);
+    expect((setRes as any)._json).toHaveProperty("message", "Context successfully set");
 
     // Get context
-    const getRequest = new Request("http://localhost/get-context", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const getReq = createMockRequest({
+      body: {
         key: testKey,
-      }),
+      },
     });
+    const getRes = createMockResponse();
+    const getNext = createMockNext();
 
-    const getResponse = await getContextRoute(getRequest);
-    const getResponseData = await getResponse.json();
+    await getContextRoute(getReq, getRes, getNext);
 
     // Verify get response
-    expect(getResponse.status).toBe(200);
-    expect(getResponseData).toHaveProperty("context");
-    expect(getResponseData.context.key).toBe(testKey);
-    expect(getResponseData.context.message).toBe(testMessage);
-    expect(getResponseData.context.metadata).toEqual({ type: "context" });
+    expect((getRes as any)._status).toBe(200);
+    expect((getRes as any)._json).toHaveProperty("context");
+    expect((getRes as any)._json.context.key).toBe(testKey);
+    expect((getRes as any)._json.context.message).toBe(testMessage);
+    expect((getRes as any)._json.context.metadata).toEqual({ type: "context" });
   });
 
   test("should handle validation errors for missing key", async () => {
     const { setContextRoute } = await import("../src/routes/context/setContext");
     
     // Create request with missing key
-    const request = new Request("http://localhost/set-context", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         message: "test message without key",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
-    const response = await setContextRoute(request);
-    const responseData = await response.json();
+    await setContextRoute(req, res, next);
 
     // Verify validation error
-    expect(response.status).toBe(400);
-    expect(responseData).toHaveProperty("error", "Key field is required");
+    expect((res as any)._status).toBe(400);
+    expect((res as any)._json).toHaveProperty("error", "Key field is required");
   });
 
   test("should handle non-existent context key", async () => {
     const { getContextRoute } = await import("../src/routes/context/getContext");
     
-    const request = new Request("http://localhost/get-context", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         key: "non-existent-key",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
-    const response = await getContextRoute(request);
-    const responseData = await response.json();
+    await getContextRoute(req, res, next);
 
     // Verify error response
-    expect(response.status).toBe(400);
-    expect(responseData).toHaveProperty("error", "Context not found");
+    expect((res as any)._status).toBe(400);
+    expect((res as any)._json).toHaveProperty("error", "Context not found");
   });
 
   test("should update existing context when setting with same key", async () => {

@@ -1,13 +1,17 @@
-import type { BunRequest } from "bun";
-import { corsHeaders } from "./corsHeaders";
+import type { Request, Response, NextFunction } from "express";
 
 export const checkForApiKey =
-  (fn: (request: BunRequest) => Promise<Response>) => (request: BunRequest) => {
-    if (request.method === "OPTIONS")
-      return new Response(null, { headers: corsHeaders });
-
-    if (request.headers.get("Authorization") !== process.env.API_SECRET) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+  (fn: (req: Request, res: Response, next: NextFunction) => Promise<void> | void) => 
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (req.method === "OPTIONS") {
+      res.status(200).end();
+      return;
     }
-    return fn(request);
+
+    if (req.headers.authorization !== process.env.API_SECRET) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    
+    await fn(req, res, next);
   };

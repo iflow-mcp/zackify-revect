@@ -11,6 +11,7 @@ import {
 import Database from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL } from "../src/database/migrations";
+import { createMockRequest, createMockResponse, createMockNext } from "./helpers/mockExpress";
 
 // Set test environment variables
 process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
@@ -117,21 +118,18 @@ describe("Document Route", () => {
     const { documentRoute } = await import("../src/routes/document/document");
     
     // Create request with missing ID
-    const request = new Request("http://localhost/document", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
+    const req = createMockRequest({
+      body: {},
     });
+    const res = createMockResponse();
+    const next = createMockNext();
     
     // Process the request
-    const response = await documentRoute(request);
-    const responseData = await response.json();
+    await documentRoute(req, res, next);
     
     // Verify validation error
-    expect(response.status).toBe(400);
-    expect(responseData).toHaveProperty("error", "Validation failed");
-    expect(responseData).toHaveProperty("issues");
+    expect((res as any)._status).toBe(400);
+    expect((res as any)._json).toHaveProperty("error", "Validation failed");
+    expect((res as any)._json).toHaveProperty("issues");
   });
 });

@@ -1,5 +1,5 @@
+import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
-import { corsHeaders as headers } from "../../shared/corsHeaders";
 import { db } from "../../database/database";
 
 const schema = z.object({
@@ -42,16 +42,14 @@ export const getContext = async (body: GetContextProps): Promise<GetContextResul
   }
 };
 
-export const getContextRoute = async (request: Request) => {
-  const body = await request.json();
+export const getContextRoute = async (req: Request, res: Response, next: NextFunction) => {
+  const body = req.body;
   const result = await getContext(body);
 
   if ("error" in result) {
-    return Response.json(result, {
-      status: 400,
-      headers,
-    });
+    res.status(400).json(result);
+    return;
   }
 
-  return Response.json(result, { headers });
+  res.json(result);
 };

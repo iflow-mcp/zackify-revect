@@ -15,6 +15,7 @@ import {
   createDocumentChunksTableSQL,
 } from "../src/database/migrations";
 import { indexRoute } from "../src/routes/index/index";
+import { createMockRequest, createMockResponse, createMockNext } from "./helpers/mockExpress";
 
 // Set test environment variables
 process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
@@ -76,20 +77,18 @@ describe("Index and Search routes", () => {
 
   test("should store short text as a single document with one chunk", async () => {
     // Create a request for indexing
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         source: "test-source",
         text: "This is a short test document.",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the index request
-    const response = await indexRoute(request);
-    expect(response.status).toBe(200);
+    await indexRoute(req, res, next);
+    expect((res as any)._status).toBe(200);
 
     // Check that one document was stored
     const docCount = db
@@ -121,20 +120,18 @@ describe("Index and Search routes", () => {
     `;
 
     // Create a request for indexing
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         source: "test-source",
         text: longText,
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the index request
-    const response = await indexRoute(request);
-    expect(response.status).toBe(200);
+    await indexRoute(req, res, next);
+    expect((res as any)._status).toBe(200);
 
     // Check that one document was stored
     const docCount = db
@@ -159,45 +156,40 @@ describe("Index and Search routes", () => {
       "Here is some text about artificial intelligence and machine learning";
 
     // Create a request for indexing
-    const indexRequest = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const indexReq = createMockRequest({
+      body: {
         source: "test-source",
         text: text,
-      }),
+      },
     });
+    const indexRes = createMockResponse();
+    const indexNext = createMockNext();
 
     // Process the index request
-    await indexRoute(indexRequest);
+    await indexRoute(indexReq, indexRes, indexNext);
 
     // Now search for it
-    const searchRequest = new Request("http://localhost/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const searchReq = createMockRequest({
+      body: {
         text: "artificial intelligence",
-      }),
+      },
     });
+    const searchRes = createMockResponse();
+    const searchNext = createMockNext();
 
     // Process the search request
-    const searchResponse = await searchRoute(searchRequest);
-    const searchData = await searchResponse.json();
+    await searchRoute(searchReq, searchRes, searchNext);
 
     // Verify search results
-    expect(searchResponse.status).toBe(200);
-    expect(searchData.results).toBeDefined();
+    expect((searchRes as any)._status).toBe(200);
+    expect((searchRes as any)._json.results).toBeDefined();
 
     // Since our mock always returns the same embeddings, any search will match
-    expect(searchData.results.length).toBeGreaterThan(0);
+    expect((searchRes as any)._json.results.length).toBeGreaterThan(0);
 
     // Check the first result
-    if (searchData.results.length > 0) {
-      const result = searchData.results[0];
+    if ((searchRes as any)._json.results.length > 0) {
+      const result = (searchRes as any)._json.results[0];
       expect(result.text).toBeDefined();
       expect(result.source).toBe("test-source");
     }
@@ -205,41 +197,36 @@ describe("Index and Search routes", () => {
 
   test("should require source parameter when indexing documents", async () => {
     // Create a request without a source parameter
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         // No source provided
         text: "This is a short test document.",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the request
-    const response = await indexRoute(request);
-    const responseData = await response.json();
+    await indexRoute(req, res, next);
 
     // Verify we get an error response
-    expect(response.status).toBe(400);
-    expect(responseData.error).toBeDefined();
+    expect((res as any)._status).toBe(400);
+    expect((res as any)._json.error).toBeDefined();
   });
 
   test("should correctly set timestamps when indexing documents", async () => {
     // Create a request
-    const request = new Request("http://localhost/index", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         source: "test",
         text: "This is a short test document.",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the request
-    await indexRoute(request);
+    await indexRoute(req, res, next);
 
     // Check if document has a timestamp
     const document = db

@@ -11,6 +11,7 @@ import {
 import Database from "bun:sqlite";
 import * as sqliteVec from "sqlite-vec";
 import { createDocumentsTableSQL, createDocumentChunksTableSQL } from "../src/database/migrations";
+import { createMockRequest, createMockResponse, createMockNext } from "./helpers/mockExpress";
 
 // Set test environment variables
 process.env.DATABASE_PATH = ":memory:"; // In-memory database for tests
@@ -104,32 +105,29 @@ describe("Search Route", () => {
     const { searchRoute } = await import("../src/routes/search/search");
     
     // Create a search request
-    const request = new Request("http://localhost/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const req = createMockRequest({
+      body: {
         text: "intelligence",
-      }),
+      },
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the search request
-    const response = await searchRoute(request);
-    const responseData = await response.json();
+    await searchRoute(req, res, next);
 
     // Verify we get results back
-    expect(response.status).toBe(200);
-    expect(responseData).toHaveProperty("results");
-    expect(Array.isArray(responseData.results)).toBe(true);
+    expect((res as any)._status).toBe(200);
+    expect((res as any)._json).toHaveProperty("results");
+    expect(Array.isArray((res as any)._json.results)).toBe(true);
     
     // We have inserted some documents, but due to how the database test works
     // we might not actually get results due to SQLite vector search limitations in tests
     // Just verify the response structure instead of content
     
-    if (responseData.results.length > 0) {
+    if ((res as any)._json.results.length > 0) {
       // If we got results, verify the structure
-      const firstResult = responseData.results[0];
+      const firstResult = (res as any)._json.results[0];
       expect(firstResult).toHaveProperty("id");
       expect(firstResult).toHaveProperty("text");
       expect(firstResult).toHaveProperty("source");
@@ -145,21 +143,18 @@ describe("Search Route", () => {
     const { searchRoute } = await import("../src/routes/search/search");
     
     // Create a search request with missing text field
-    const request = new Request("http://localhost/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
+    const req = createMockRequest({
+      body: {},
     });
+    const res = createMockResponse();
+    const next = createMockNext();
 
     // Process the search request
-    const response = await searchRoute(request);
-    const responseData = await response.json();
+    await searchRoute(req, res, next);
 
     // Verify validation error
-    expect(response.status).toBe(400);
-    expect(responseData).toHaveProperty("error", "Validation failed");
-    expect(responseData).toHaveProperty("issues");
+    expect((res as any)._status).toBe(400);
+    expect((res as any)._json).toHaveProperty("error", "Validation failed");
+    expect((res as any)._json).toHaveProperty("issues");
   });
 });
