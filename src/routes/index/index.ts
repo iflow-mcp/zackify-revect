@@ -1,8 +1,8 @@
+import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { generateEmbeddings } from "../../shared/generateEmbeddings";
 import { indexDocument } from "./indexDocument";
 import { indexDocumentChunk } from "./indexDocumentChunk";
-import { corsHeaders as headers } from "../../shared/corsHeaders";
 import { splitTextIntoChunks } from "../../utils/splitTextIntoChunks";
 import { db } from "../../database/database";
 
@@ -35,7 +35,13 @@ export const index = async (body: IndexProps): Promise<IndexResult> => {
   }
 
   // Insert the main document and get its ID
-  const documentId = await indexDocument({ ...data, embeddings });
+  const documentId = await indexDocument({ 
+    text: data.text,
+    source: data.source,
+    external_id: data.external_id,
+    metadata: data.metadata,
+    embeddings 
+  });
 
   if (!documentId) {
     return { error: "Failed to index document" };
@@ -74,16 +80,14 @@ export const index = async (body: IndexProps): Promise<IndexResult> => {
   return { message: "Data successfully indexed" };
 };
 
-export const indexRoute = async (request: Request) => {
-  const body = await request.json();
+export const indexRoute = async (req: Request, res: Response, next: NextFunction) => {
+  const body = req.body;
   const result = await index(body);
 
   if ("error" in result) {
-    return Response.json(result, {
-      status: 400,
-      headers,
-    });
+    res.status(400).json(result);
+    return;
   }
 
-  return Response.json(result, { headers });
+  res.json(result);
 };

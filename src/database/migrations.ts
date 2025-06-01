@@ -180,6 +180,7 @@ async function migrate(direction: "up" | "down", targetMigration?: string) {
   }
 }
 // Run migrations when script is executed directly
+// @ts-ignore - Bun-specific feature
 if (import.meta.main) {
   const args = process.argv.slice(2);
   const direction = args[0]?.toLowerCase();

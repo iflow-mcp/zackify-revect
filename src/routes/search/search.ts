@@ -1,6 +1,6 @@
+import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 import { generateEmbeddings } from "../../shared/generateEmbeddings";
-import { corsHeaders as headers } from "../../shared/corsHeaders";
 import {
   searchDocuments,
   type SearchDocumentResponse,
@@ -10,26 +10,21 @@ const schema = z.object({
   text: z.string({ required_error: "search text is required" }),
 });
 
-export const searchRoute = async (request: Request) => {
-  const body = await request.json();
+export const searchRoute = async (req: Request, res: Response, next: NextFunction) => {
+  const body = req.body;
   const { error, data, success } = schema.safeParse(body);
 
   if (!success) {
-    return Response.json(
-      {
-        error: "Validation failed",
-        issues: error.issues,
-      },
-      {
-        status: 400,
-        headers,
-      }
-    );
+    res.status(400).json({
+      error: "Validation failed",
+      issues: error.issues,
+    });
+    return;
   }
 
   const result = await search({ text: data.text });
 
-  return Response.json(result, { headers });
+  res.json(result);
 };
 
 export type SearchResponse =
