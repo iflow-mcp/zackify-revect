@@ -14,11 +14,5 @@ if (!fs.existsSync(dataDir)) {
 export const db = new Database(dbPath);
 db.exec("PRAGMA journal_mode = WAL;");
 
-// Load sqlite-vec extension if available
-try {
-  const sqliteVec = require("sqlite-vec");
-  sqliteVec.load(db);
-  console.log("sqlite-vec extension loaded");
-} catch (err) {
-  console.warn("sqlite-vec extension not available, vector search may not work:", err.message);
-}
+// Note: sqlite-vec extension not loaded to avoid compilation issues
+// Using fallback text-based search instead

@@ -1,0 +1,4 @@
+{
+  "level": "SAFE",
+  "security_check_url": "https://logs.aone.alibaba-inc.com/api/v1/logBases/aone-ci/logs/29224915-ci-pipeline-run-29224915-analysis?stepName=step-2&offset=0&size=5000&limitBytes=5242880"
+}

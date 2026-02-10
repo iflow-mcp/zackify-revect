@@ -15,3 +15,17 @@
 - 环境变量: AI_EMBEDDING_MODEL=text-embedding-ada-002, AI_EMBEDDING_SIZE=1536, AI_API_KEY=sk-test
 - 测试命令: npx -y tsx src/stdio.ts
 - 工具列表: recall, getDocumentById, saveOrIndex, setContext, getContext
+
+[2026-02-10] [SUCCESS] 步骤4 - 推送iflow分支: 推送成功
+- 分支: iflow
+- 远程仓库: https://github.com/iflow-mcp/zackify-revect
+
+[2026-02-10] [SUCCESS] 步骤5 - 上传官方仓库: 上传成功
+- 包名: @iflow-mcp/zackify-revect
+- 版本: 1.0.0
+- 发布时间: 2026-02-10
+
+[2026-02-10] [IN_PROGRESS] 步骤6 - L1测试: 测试超时（可能由于包同步延迟）
+- ServerConfig已生成
+- 测试次数: 1/3
+- 状态: 等待包同步到npm registry

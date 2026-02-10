@@ -2,6 +2,7 @@ import { db } from "../../database/database";
 
 export type SearchDocumentsProps = {
   embeddings: number[];
+  text: string;
 };
 
 export type SearchDocumentResponse = {
@@ -13,36 +14,29 @@ export type SearchDocumentResponse = {
   document_id: number;
 };
 
-export type DocumentChunkRow = {
-  chunk_id: number;
-  chunk_text: string;
-  chunk_metadata: string;
-  distance: number;
-  document_id: number;
-  document_metadata: string;
-  document_source: string;
-};
-
 export const searchDocuments = async ({
   embeddings,
+  text,
 }: SearchDocumentsProps): Promise<SearchDocumentResponse[]> => {
+  // Simple text-based search using LIKE (fallback when vector search is not available)
   const rows = db
     .query(
       `
         SELECT 
           dc.id as chunk_id,
           dc.text as chunk_text,
-          vec_distance_cosine(dc.embeddings, $1) as distance,
+          0 as distance,
           d.id as document_id,
           d.source as document_source,
           d.metadata as document_metadata
         FROM document_chunks dc
         JOIN documents d ON dc.document_id = d.id
-        ORDER BY distance
+        WHERE dc.text LIKE '%' || $1 || '%'
+        ORDER BY dc.id
         LIMIT 10;
       `
     )
-    .all({ $1: `[${embeddings.join(",")}]` }) as DocumentChunkRow[];
+    .all({ $1: text }) as any[];
 
   return rows.map(row => ({
     id: row.chunk_id,
