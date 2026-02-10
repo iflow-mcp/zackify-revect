@@ -9,10 +9,12 @@
     "allowJs": true,
 
     // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
     "verbatimModuleSyntax": false,
-    "noEmit": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
 
@@ -27,5 +29,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": ["extensions"]
+  "include": ["src/**/*"],
+  "exclude": ["extensions", "tests"]
 }
